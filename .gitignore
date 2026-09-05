@@ -22,3 +22,6 @@ Thumbs.db
 
 # TypeScript cache
 *.tsbuildinfo
+
+# Prisma databases
+prisma/*.db
