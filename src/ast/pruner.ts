@@ -12,11 +12,11 @@
 import { parse } from '@babel/parser';
 import traverseModule from '@babel/traverse';
 import type { NodePath } from '@babel/traverse';
-import * as t from '@babel/types';
+import type { Node } from '@babel/types';
 
 // The babel traverse module provides a default export but sometimes needs 
 // special handling in pure ESM or CJS depending on how it's bundled.
-const traverse = (traverseModule as unknown as { default: typeof traverseModule }).default || traverseModule;
+const traverse = (traverseModule as any).default || traverseModule;
 
 /**
  * Parses the provided code and extracts the block enclosing the target line number.
@@ -34,7 +34,7 @@ export function extractEnclosingBlock(code: string, targetLine: number): string 
       tokens: false,
     });
 
-    let bestNode: t.Node | null = null;
+    let bestNode: Node | null = null;
     let minLines = Infinity;
 
     traverse(ast, {
