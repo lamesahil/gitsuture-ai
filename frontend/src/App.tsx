@@ -12,6 +12,7 @@ import Dashboard from './components/Dashboard'
 
 export default function App() {
   const timelineRef = useRef<HealingTimelineRef | null>(null)
+  const [currentView, setCurrentView] = useState<'landing' | 'dashboard'>('landing')
 
   function scrollToDemo() {
     const el = document.getElementById('interactive-demo')
