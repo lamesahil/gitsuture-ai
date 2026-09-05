@@ -1,0 +1,207 @@
+@import "tailwindcss";
+
+/* ─── Design Tokens ─────────────────────────────────────────────────────────── */
+:root {
+  /* Surfaces */
+  --color-surface: #0d141d;
+  --color-surface-dim: #0d141d;
+  --color-surface-bright: #333a44;
+  --color-surface-container-lowest: #080f17;
+  --color-surface-container-low: #151c25;
+  --color-surface-container: #192029;
+  --color-surface-container-high: #232a34;
+  --color-surface-container-highest: #2e353f;
+
+  /* On-surface text */
+  --color-on-surface: #dce3f0;
+  --color-on-surface-variant: #bcc9cd;
+  --color-inverse-surface: #dce3f0;
+  --color-inverse-on-surface: #2a313b;
+
+  /* Borders */
+  --color-outline: #869397;
+  --color-outline-variant: #3d494c;
+
+  /* Primary - Cyan */
+  --color-primary: #4cd7f6;
+  --color-on-primary: #003640;
+  --color-primary-container: #06b6d4;
+  --color-on-primary-container: #00424f;
+  --color-inverse-primary: #00687a;
+  --color-primary-fixed: #acedff;
+  --color-primary-fixed-dim: #4cd7f6;
+  --color-on-primary-fixed: #001f26;
+  --color-on-primary-fixed-variant: #004e5c;
+  --color-surface-tint: #4cd7f6;
+
+  /* Secondary - Violet */
+  --color-secondary: #d0bcff;
+  --color-on-secondary: #3c0091;
+  --color-secondary-container: #571bc1;
+  --color-on-secondary-container: #c4abff;
+  --color-secondary-fixed: #e9ddff;
+  --color-secondary-fixed-dim: #d0bcff;
+  --color-on-secondary-fixed: #23005c;
+  --color-on-secondary-fixed-variant: #5516be;
+
+  /* Tertiary - Emerald */
+  --color-tertiary: #4edea3;
+  --color-on-tertiary: #003824;
+  --color-tertiary-container: #1bbd85;
+  --color-on-tertiary-container: #00452e;
+  --color-tertiary-fixed: #6ffbbe;
+  --color-tertiary-fixed-dim: #4edea3;
+  --color-on-tertiary-fixed: #002113;
+  --color-on-tertiary-fixed-variant: #005236;
+
+  /* Error - Crimson */
+  --color-error: #ffb4ab;
+  --color-on-error: #690005;
+  --color-error-container: #93000a;
+  --color-on-error-container: #ffdad6;
+
+  /* Background */
+  --color-background: #0d141d;
+  --color-on-background: #dce3f0;
+  --color-surface-variant: #2e353f;
+}
+
+/* ─── Base Reset ─────────────────────────────────────────────────────────────── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 14px;
+  line-height: 20px;
+  letter-spacing: -0.005em;
+  font-weight: 400;
+  color: var(--color-on-surface);
+  background-color: var(--color-surface-container-lowest);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  overscroll-behavior: none;
+}
+
+#root {
+  width: 100%;
+  min-height: 100svh;
+}
+
+/* ─── Scrollbar ──────────────────────────────────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-surface-container-lowest);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-outline-variant);
+  border-radius: 9999px;
+}
+
+/* ─── Selection ──────────────────────────────────────────────────────────────── */
+::selection {
+  background: var(--color-primary-container);
+  color: var(--color-on-primary-container);
+}
+
+/* ─── Typography helpers ─────────────────────────────────────────────────────── */
+.font-mono-code {
+  font-family: 'JetBrains Mono', ui-monospace, Consolas, monospace;
+}
+
+/* ─── Tailwind v4 theme extension ────────────────────────────────────────────── */
+@theme {
+  --font-sans: 'Inter', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, Consolas, monospace;
+
+  /* Custom colors mapped from DESIGN.md */
+  --color-surface: #0d141d;
+  --color-surface-dim: #0d141d;
+  --color-surface-container-lowest: #080f17;
+  --color-surface-container-low: #151c25;
+  --color-surface-container: #192029;
+  --color-surface-container-high: #232a34;
+  --color-surface-container-highest: #2e353f;
+  --color-on-surface: #dce3f0;
+  --color-on-surface-variant: #bcc9cd;
+  --color-outline: #869397;
+  --color-outline-variant: #3d494c;
+  --color-primary: #4cd7f6;
+  --color-on-primary: #003640;
+  --color-primary-container: #06b6d4;
+  --color-on-primary-container: #00424f;
+  --color-primary-fixed: #acedff;
+  --color-primary-fixed-dim: #4cd7f6;
+  --color-secondary: #d0bcff;
+  --color-on-secondary: #3c0091;
+  --color-secondary-container: #571bc1;
+  --color-on-secondary-container: #c4abff;
+  --color-tertiary: #4edea3;
+  --color-on-tertiary: #003824;
+  --color-tertiary-container: #1bbd85;
+  --color-on-tertiary-container: #00452e;
+  --color-tertiary-fixed-dim: #4edea3;
+  --color-error: #ffb4ab;
+  --color-on-error: #690005;
+  --color-error-container: #93000a;
+  --color-on-error-container: #ffdad6;
+}
+
+/* ─── Animations ─────────────────────────────────────────────────────────────── */
+@keyframes ping {
+  75%,
+  100% {
+    transform: scale(2);
+    opacity: 0;
+  }
+}
+@keyframes pulse {
+  50% {
+    opacity: 0.5;
+  }
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-ping {
+  animation: ping 1s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+.animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+/* ─── Diff line styles ───────────────────────────────────────────────────────── */
+.diff-del {
+  background-color: rgba(147, 0, 10, 0.2);
+  color: #ffb4ab;
+}
+.diff-add {
+  background-color: rgba(27, 189, 133, 0.2);
+  color: #4edea3;
+}
+.diff-ctx {
+  color: var(--color-on-surface-variant);
+}

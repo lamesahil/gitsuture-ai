@@ -1,0 +1,9 @@
+{
+  "name": "dummy-fail",
+  "version": "1.0.0",
+  "private": true,
+  "description": "GitSuture test fixture — deliberately fails with a real stack trace",
+  "scripts": {
+    "test": "node test.js"
+  }
+}

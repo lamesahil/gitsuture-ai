@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{"colors":{"secondary-fixed":"#e9ddff","inverse-primary":"#00687a","on-tertiary-fixed":"#002113","on-secondary-fixed-variant":"#5516be","surface-container":"#192029","outline-variant":"#3d494c","on-secondary-fixed":"#23005c","on-secondary":"#3c0091","on-primary":"#003640","on-tertiary":"#003824","primary-fixed":"#acedff","on-primary-container":"#00424f","primary":"#4cd7f6","on-secondary-container":"#c4abff","surface-container-high":"#232a34","surface-dim":"#0d141d","primary-container":"#06b6d4","tertiary-fixed":"#6ffbbe","error":"#ffb4ab","surface-container-highest":"#2e353f","outline":"#869397","on-tertiary-container":"#00452e","error-container":"#93000a","surface-container-lowest":"#080f17","background":"#0d141d","secondary":"#d0bcff","primary-fixed-dim":"#4cd7f6","surface":"#0d141d","inverse-on-surface":"#2a313b","on-error-container":"#ffdad6","surface-tint":"#4cd7f6","on-error":"#690005","secondary-container":"#571bc1","surface-container-low":"#151c25","on-surface":"#dce3f0","surface-variant":"#2e353f","on-primary-fixed-variant":"#004e5c","inverse-surface":"#dce3f0","on-tertiary-fixed-variant":"#005236","on-primary-fixed":"#001f26","tertiary-fixed-dim":"#4edea3","on-surface-variant":"#bcc9cd","tertiary-container":"#1bbd85","surface-bright":"#333a44","secondary-fixed-dim":"#d0bcff","on-background":"#dce3f0","tertiary":"#4edea3"},"borderRadius":{"DEFAULT":"0.125rem","lg":"0.25rem","xl":"0.5rem","full":"0.75rem"},"spacing":{"space-2xl":"3rem","space-xl":"2rem","diff-meta-width":"320px","space-md":"0.75rem","space-xs":"0.25rem","sidebar-width":"260px","space-base":"1rem","space-lg":"1.5rem","gutter-terminal":"0.75rem","space-sm":"0.5rem","gutter-pane":"1.25rem","space-2xs":"0.125rem"},"fontFamily":{"body-sm":["Inter"],"code-lg":["JetBrains Mono"],"headline-md":["Inter"],"body-md":["Inter"],"code-sm":["JetBrains Mono"],"headline-xl":["Inter"],"headline-lg":["Inter"],"code-badge":["JetBrains Mono"],"caption":["Inter"],"headline-sm":["Inter"]},"fontSize":{"body-sm":["13px",{"lineHeight":"18px","letterSpacing":"0em","fontWeight":"400"}],"code-lg":["13px",{"lineHeight":"20px","letterSpacing":"-0.01em","fontWeight":"500"}],"headline-md":["18px",{"lineHeight":"26px","letterSpacing":"-0.015em","fontWeight":"500"}],"body-md":["14px",{"lineHeight":"20px","letterSpacing":"-0.005em","fontWeight":"400"}],"code-sm":["12px",{"lineHeight":"18px","letterSpacing":"0em","fontWeight":"400"}],"headline-xl":["32px",{"lineHeight":"40px","letterSpacing":"-0.025em","fontWeight":"600"}],"headline-lg":["24px",{"lineHeight":"32px","letterSpacing":"-0.02em","fontWeight":"600"}],"code-badge":["11px",{"lineHeight":"14px","letterSpacing":"0.02em","fontWeight":"500"}],"caption":["11px",{"lineHeight":"16px","letterSpacing":"0.01em","fontWeight":"400"}],"headline-sm":["15px",{"lineHeight":"22px","letterSpacing":"-0.01em","fontWeight":"500"}]}}}};</script></head><body class="bg-surface-container-lowest font-body-md text-on-surface antialiased selection:bg-primary-container selection:text-on-primary-container"><header class="fixed top-0 left-0 right-0 z-50 bg-surface-container-lowest/80 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.4)]"><div class="h-16 max-w-7xl mx-auto px-6 lg:px-12 flex items-center justify-between gap-space-md"><div class="flex items-center gap-space-lg"><a class="flex items-center gap-space-sm" data-path="product" href="#"><img alt="GitSuture Logo" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1Wip_U97pHZ-jsv3onz9eiRPJ7ao7f_IZNWVGUCPkbpV5M5xrQe4f0UP8w8MVamnoDHyss3Um-nQEd4vwjs9obbkxJ5IpC1o330gmiUL2FjO04_C5QWJ9CG53wMgg5H5igtlrul68YTUz91uOOZyKllIatKQMo_BY_Fr_kNkzxDnBohAVcsFJhNXy7rh2ugJGk1nCkrPrx3z2wt8JBcfjLNchImMNSQuTPV8MCg9kXLGq0d7-pXWulk4Wg"/><span class="font-code-lg text-code-lg text-on-surface tracking-tight font-medium">GitSuture</span></a><nav class="hidden md:flex items-center gap-space-lg font-body-sm text-body-sm" data-active-classes="text-on-surface font-medium"><a aria-current="page" class="transition-colors text-on-surface font-medium" data-path="product" href="#">Product</a><a class="text-on-surface-variant hover:text-on-surface transition-colors" data-path="how-it-works" href="#">How it Works</a><a class="text-on-surface-variant hover:text-on-surface transition-colors" data-path="architecture" href="#">Architecture</a><a class="text-on-surface-variant hover:text-on-surface transition-colors" data-path="github" href="#">GitHub</a></nav></div><div class="flex items-center gap-space-md"><a class="inline-flex items-center gap-space-xs bg-primary-container text-on-primary-container px-space-md py-space-xs rounded font-headline-sm text-headline-sm transition-transform active:scale-[0.98] hover:bg-primary" data-path="install-github-app" href="#"><span class="material-symbols-outlined text-[16px]">terminal</span><span>Install GitHub App</span></a><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></header><main class="w-full pt-16 bg-surface-container-lowest relative"><div class="flex flex-col w-full">
+<!-- Top Ambient Glow -->
+<div class="relative w-full overflow-hidden">
+<div class="absolute -top-32 left-1/2 -translate-x-1/2 w-[720px] h-[340px] bg-primary/10 blur-[130px] pointer-events-none rounded-full"></div>
+<div class="absolute top-24 right-1/4 w-[380px] h-[220px] bg-tertiary/10 blur-[110px] pointer-events-none rounded-full"></div>
+<!-- 1. HERO SECTION -->
+<section class="max-w-7xl mx-auto px-6 lg:px-12 pt-12 pb-16 relative">
+<div class="flex flex-col items-center text-center max-w-4xl mx-auto">
+<!-- Badge -->
+<div class="inline-flex items-center gap-space-sm px-space-md py-space-xs rounded-full bg-surface-container-high text-tertiary font-code-badge text-code-badge shadow-sm">
+<span class="relative flex h-2 w-2">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-tertiary opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2 w-2 bg-tertiary"></span>
+</span>
+<span class="tracking-wider uppercase font-medium text-on-surface">AUTONOMOUS PULL REQUEST REPAIR</span>
+<span class="text-outline-variant">•</span>
+<span class="text-tertiary-fixed-dim">ISOLATED WORKFLOW</span>
+</div>
+<!-- Main Headline -->
+<h1 class="mt-space-lg font-headline-xl text-headline-xl text-on-surface tracking-tight sm:text-5xl md:text-6xl font-semibold leading-tight">
+          Code breaks. <br class="hidden sm:inline"/>
+<span class="bg-gradient-to-r from-primary via-primary-fixed to-tertiary bg-clip-text text-transparent">GitSuture fixes it.</span>
+</h1>
+<!-- Subheadline -->
+<p class="mt-space-lg font-body-md text-body-md text-on-surface-variant max-w-2xl text-base sm:text-lg leading-relaxed">
+          An autonomous AI repair loop for failing GitHub Pull Requests — reproduce, diagnose, patch, verify, and recover without leaving your workflow.
+        </p>
+<!-- CTA Group -->
+<div class="mt-space-xl flex flex-wrap items-center justify-center gap-space-md">
+<a class="inline-flex items-center gap-space-sm bg-primary-container text-on-primary-container px-space-lg py-space-md rounded font-headline-sm text-headline-sm transition-all shadow-md hover:bg-primary active:scale-[0.98]" href="#">
+<svg aria-hidden="true" class="w-4 h-4 fill-current" viewbox="0 0 16 16">
+<path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path>
+</svg>
+<span>Install GitHub App</span>
+</a>
+<button class="inline-flex items-center gap-space-sm bg-surface-container-high text-on-surface hover:text-primary px-space-lg py-space-md rounded font-headline-sm text-headline-sm transition-colors shadow-sm" id="hero-scroll-btn">
+<span class="material-symbols-outlined text-[18px]">play_circle</span>
+<span>View Live Demo</span>
+</button>
+</div>
+<!-- Technical Trust Line -->
+<div class="mt-space-lg flex flex-wrap items-center justify-center gap-x-space-md gap-y-space-xs font-code-sm text-code-sm text-outline">
+<span class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-primary/70"></span>GitHub Webhooks</span>
+<span class="text-outline-variant">•</span>
+<span class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-primary/70"></span>Docker Sandbox</span>
+<span class="text-outline-variant">•</span>
+<span class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-tertiary/70"></span>Gemini</span>
+<span class="text-outline-variant">•</span>
+<span class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-tertiary/70"></span>Verified Patches</span>
+</div>
+</div>
+<!-- 2. HERO PRODUCT VISUAL: THE INTERACTIVE HEALING TIMELINE -->
+<div class="mt-space-2xl max-w-5xl mx-auto rounded-xl bg-surface-container-low shadow-xl overflow-hidden" id="interactive-demo">
+<!-- GitHub Header Bar -->
+<div class="bg-surface-container-high px-space-lg py-space-md flex flex-wrap items-center justify-between gap-space-sm">
+<div class="flex items-center gap-space-md flex-wrap">
+<span class="inline-flex items-center gap-1 px-space-sm py-0.5 rounded-full bg-primary/10 text-primary font-code-badge text-code-badge">
+<span class="material-symbols-outlined text-[13px]">commit</span> #42
+            </span>
+<span class="font-headline-sm text-headline-sm text-on-surface font-semibold">fix: user authentication token validation</span>
+<span class="inline-flex items-center gap-1 font-code-sm text-code-sm text-on-surface-variant bg-surface-container px-2 py-0.5 rounded">
+<span class="text-outline">main</span>
+<span class="material-symbols-outlined text-[13px]">arrow_back</span>
+<span class="text-primary font-medium">auth-session-fix</span>
+</span>
+</div>
+<div class="flex items-center gap-space-md">
+<div class="flex items-center gap-1.5 font-code-badge text-code-badge text-outline">
+<span class="w-5 h-5 rounded-full bg-primary/20 text-primary flex items-center justify-center font-bold text-[10px]">AL</span>
+<span>alexander</span>
+<span class="text-outline-variant">@</span>
+<span class="text-on-surface-variant font-mono">7f83b2a</span>
+</div>
+<button class="inline-flex items-center gap-1.5 px-space-sm py-1 rounded bg-surface-container text-primary hover:bg-primary hover:text-on-primary font-code-badge text-code-badge transition-all active:scale-95 shadow-sm" id="replay-btn">
+<span class="material-symbols-outlined text-[14px]">replay</span>
+<span>Replay Healing Loop</span>
+</button>
+</div>
+</div>
+<!-- Stage Timeline Scrubber Navigation -->
+<div class="bg-surface-container px-space-lg py-space-sm grid grid-cols-5 gap-2 text-center text-xs overflow-x-auto">
+<button class="stage-nav-btn py-2 px-3 rounded flex flex-col items-center gap-1 transition-all bg-error-container text-on-error-container" data-stage="0">
+<div class="flex items-center gap-1 font-code-badge text-code-badge">
+<span class="w-2 h-2 rounded-full bg-error animate-ping"></span>
+<span class="font-semibold">01 FAIL</span>
+</div>
+<span class="font-caption text-caption opacity-80 truncate max-w-full">Exit Code 1</span>
+</button>
+<button class="stage-nav-btn py-2 px-3 rounded flex flex-col items-center gap-1 transition-all bg-surface-container-high text-on-surface-variant hover:text-on-surface" data-stage="1">
+<div class="flex items-center gap-1 font-code-badge text-code-badge">
+<span class="w-2 h-2 rounded-full bg-primary"></span>
+<span class="font-semibold">02 ANALYZE</span>
+</div>
+<span class="font-caption text-caption opacity-80 truncate max-w-full">AST Context</span>
+</button>
+<button class="stage-nav-btn py-2 px-3 rounded flex flex-col items-center gap-1 transition-all bg-surface-container-high text-on-surface-variant hover:text-on-surface" data-stage="2">
+<div class="flex items-center gap-1 font-code-badge text-code-badge">
+<span class="w-2 h-2 rounded-full bg-secondary"></span>
+<span class="font-semibold">03 PATCH</span>
+</div>
+<span class="font-caption text-caption opacity-80 truncate max-w-full">AI-Generated Patch</span>
+</button>
+<button class="stage-nav-btn py-2 px-3 rounded flex flex-col items-center gap-1 transition-all bg-surface-container-high text-on-surface-variant hover:text-on-surface" data-stage="3">
+<div class="flex items-center gap-1 font-code-badge text-code-badge">
+<span class="w-2 h-2 rounded-full bg-primary"></span>
+<span class="font-semibold">04 VERIFY</span>
+</div>
+<span class="font-caption text-caption opacity-80 truncate max-w-full">Docker Sandbox</span>
+</button>
+<button class="stage-nav-btn py-2 px-3 rounded flex flex-col items-center gap-1 transition-all bg-surface-container-high text-on-surface-variant hover:text-on-surface" data-stage="4">
+<div class="flex items-center gap-1 font-code-badge text-code-badge">
+<span class="w-2 h-2 rounded-full bg-tertiary"></span>
+<span class="font-semibold">05 HEALED</span>
+</div>
+<span class="font-caption text-caption opacity-80 truncate max-w-full">PR Updated</span>
+</button>
+</div>
+<!-- Dynamic Stage Display Area -->
+<div class="p-space-lg bg-surface-container-lowest">
+<!-- Step 1: FAIL View -->
+<div class="stage-panel flex flex-col gap-space-md" id="stage-panel-0">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-sm">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-error-container text-on-error-container font-code-badge text-code-badge font-semibold">
+<span class="material-symbols-outlined text-[14px]">cancel</span>
+<span>CI CHECK FAILED</span>
+</span>
+<span class="font-code-sm text-code-sm text-error">Exit Code 1</span>
+</div>
+<span class="font-caption text-caption text-outline">Workflow: test-suite.yml #819</span>
+</div>
+<div class="rounded-lg bg-surface-dim p-space-md font-code-sm text-code-sm overflow-x-auto shadow-inner text-on-surface">
+<div class="text-error font-semibold flex items-center gap-2 mb-2">
+<span class="material-symbols-outlined text-[16px]">bug_report</span>
+<span>FAIL: src/auth/session.test.ts &gt; should authenticate valid cookies</span>
+</div>
+<p class="text-on-surface-variant pl-4">TypeError: Cannot read properties of undefined (reading 'sessionToken')</p>
+<p class="text-error pl-8 mt-1">at extractSession (src/auth/session.ts:42:15)</p>
+<p class="text-outline pl-8">at Object.&lt;anonymous&gt; (src/auth/session.test.ts:18:24)</p>
+<p class="text-outline pl-8">at Promise.then.completed (node_modules/jest-circus/build/utils.js:298:28)</p>
+<div class="mt-3 pt-2 text-on-surface-variant flex items-center justify-between text-xs">
+<span>Tests: 1 failed, 17 passed, 18 total</span>
+<span class="text-error">Snapshots: 0 failed</span>
+</div>
+</div>
+<div class="flex items-center justify-between text-xs text-outline pt-1">
+<span class="flex items-center gap-1.5 text-primary">
+<span class="material-symbols-outlined text-[14px] animate-spin">sync</span>
+                GitSuture daemon intercepted failing check run via webhook webhook_id:wh_89201a
+              </span>
+<span>10:41:02 UTC</span>
+</div>
+</div>
+<!-- Step 2: ANALYZE View -->
+<div class="stage-panel hidden flex flex-col gap-space-md" id="stage-panel-1">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-sm">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-surface-container-high text-primary font-code-badge text-code-badge font-semibold">
+<span class="material-symbols-outlined text-[14px] animate-spin">data_object</span>
+<span>AST CONTEXT ISOLATION</span>
+</span>
+<span class="font-code-sm text-code-sm text-primary">3 relevant files indexed</span>
+</div>
+<span class="font-caption text-caption text-outline">Container: gitsuture-runner-v3</span>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-space-sm">
+<div class="p-space-sm rounded bg-surface-container-high">
+<span class="font-code-badge text-code-badge text-outline uppercase block mb-1">Target Function</span>
+<span class="font-code-sm text-code-sm text-on-surface font-semibold">extractSession()</span>
+<p class="font-caption text-caption text-outline-variant mt-1">src/auth/session.ts:38-51</p>
+</div>
+<div class="p-space-sm rounded bg-surface-container-high">
+<span class="font-code-badge text-code-badge text-outline uppercase block mb-1">Fault Signature</span>
+<span class="font-code-sm text-code-sm text-secondary font-semibold">Null Dereference</span>
+<p class="font-caption text-caption text-outline-variant mt-1">AST node: MemberExpression</p>
+</div>
+<div class="p-space-sm rounded bg-surface-container-high">
+<span class="font-code-badge text-code-badge text-outline uppercase block mb-1">Sandbox State</span>
+<span class="font-code-sm text-code-sm text-tertiary font-semibold">Spooled (420ms)</span>
+<p class="font-caption text-caption text-outline-variant mt-1">Docker rootless runtime</p>
+</div>
+</div>
+<div class="rounded-lg bg-surface-dim p-space-md font-code-sm text-code-sm text-on-surface-variant shadow-inner">
+<p class="text-primary font-medium">$ gitsuture trace --ast --symbol "req.cookies"</p>
+<p class="text-on-surface pl-2 mt-1">[✓] Graph extracted: 4 callers, 1 null-vulnerable access point identified.</p>
+<p class="text-on-surface pl-2">[✓] Context window pruned: 12,410 tokens → 640 surgical tokens.</p>
+<p class="text-tertiary pl-2">[✓] Dispatched to Gemini with deterministic patch prompt.</p>
+</div>
+</div>
+<!-- Step 3: PATCH View -->
+<div class="stage-panel hidden flex flex-col gap-space-md" id="stage-panel-2">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-sm">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-secondary-container text-on-secondary-container font-code-badge text-code-badge font-semibold">
+<span class="material-symbols-outlined text-[14px]">auto_fix_high</span>
+<span>AI-GENERATED PATCH</span>
+</span>
+<span class="font-code-sm text-code-sm text-secondary">Context-constrained</span>
+</div>
+<span class="font-caption text-caption text-outline">src/auth/session.ts (+3, -2)</span>
+</div>
+<div class="rounded-lg bg-surface-dim overflow-hidden font-code-sm text-code-sm shadow-inner">
+<div class="bg-surface-container px-space-md py-1.5 text-xs text-outline font-mono flex items-center justify-between">
+<span>@@ -41,4 +41,5 @@ export async function extractSession(req: Request)</span>
+<span class="text-primary">diff.patch</span>
+</div>
+<div class="p-space-sm space-y-0.5">
+<div class="flex items-center bg-error-container/30 text-error px-2 py-0.5 rounded">
+<span class="w-8 text-outline select-none">41</span>
+<span class="w-4 select-none">-</span>
+<span>const token = req.cookies.sessionToken;</span>
+</div>
+<div class="flex items-center bg-error-container/30 text-error px-2 py-0.5 rounded">
+<span class="w-8 text-outline select-none">42</span>
+<span class="w-4 select-none">-</span>
+<span>return await verifyToken(token);</span>
+</div>
+<div class="flex items-center bg-tertiary-container/30 text-tertiary px-2 py-0.5 rounded">
+<span class="w-8 text-outline select-none">41</span>
+<span class="w-4 select-none">+</span>
+<span>const token = req.cookies?.sessionToken;</span>
+</div>
+<div class="flex items-center bg-tertiary-container/30 text-tertiary px-2 py-0.5 rounded">
+<span class="w-8 text-outline select-none">42</span>
+<span class="w-4 select-none">+</span>
+<span>if (!token) throw new AuthenticationError('Missing session token');</span>
+</div>
+<div class="flex items-center bg-tertiary-container/30 text-tertiary px-2 py-0.5 rounded">
+<span class="w-8 text-outline select-none">43</span>
+<span class="w-4 select-none">+</span>
+<span>return await verifyToken(token);</span>
+</div>
+</div>
+</div>
+<p class="font-caption text-caption text-on-surface-variant flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[15px] text-tertiary">check_circle</span>
+              AST validation passed: Patch constrained to failure scope and syntax verified.
+            </p>
+</div>
+<!-- Step 4: VERIFY View -->
+<div class="stage-panel hidden flex flex-col gap-space-md" id="stage-panel-3">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-sm">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-primary/20 text-primary font-code-badge text-code-badge font-semibold">
+<span class="material-symbols-outlined text-[14px] animate-spin">hourglass_top</span>
+<span>SANDBOX VERIFICATION</span>
+</span>
+<span class="font-code-sm text-code-sm text-on-surface">Running isolated check suite</span>
+</div>
+<span class="font-caption text-caption text-outline">Docker: --net none --read-only</span>
+</div>
+<div class="rounded-lg bg-surface-dim p-space-md font-code-sm text-code-sm text-on-surface shadow-inner">
+<p class="text-primary font-mono">$ yarn test --ci --testPathPattern="src/auth"</p>
+<p class="text-on-surface-variant mt-2">PASS src/auth/session.test.ts</p>
+<p class="text-on-surface-variant">PASS src/auth/jwt.test.ts</p>
+<p class="text-on-surface-variant">PASS src/auth/rbac.test.ts</p>
+<!-- Progress bar -->
+<div class="mt-4">
+<div class="flex justify-between text-xs font-mono mb-1 text-on-surface-variant">
+<span>Executing test suites (18 of 18)</span>
+<span class="text-tertiary">100%</span>
+</div>
+<div class="w-full bg-surface-container h-2 rounded-full overflow-hidden">
+<div class="bg-gradient-to-r from-primary to-tertiary h-full w-full"></div>
+</div>
+</div>
+<div class="mt-4 flex items-center justify-between text-xs text-tertiary font-mono pt-2">
+<span>Test Suites: 3 passed, 3 total</span>
+<span>Tests: 18 passed, 18 total • 1.2s</span>
+</div>
+</div>
+</div>
+<!-- Step 5: HEALED View -->
+<div class="stage-panel hidden flex flex-col gap-space-md" id="stage-panel-4">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-sm">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-tertiary-container text-on-tertiary-container font-code-badge text-code-badge font-semibold">
+<span class="material-symbols-outlined text-[15px]">verified</span>
+<span>PULL REQUEST HEALED</span>
+</span>
+<span class="font-code-sm text-code-sm text-tertiary">All 18 checks passing</span>
+</div>
+<span class="font-caption text-caption text-outline">Mean repair time: 28.4s</span>
+</div>
+<div class="rounded-lg bg-surface-dim p-space-md shadow-inner flex flex-col sm:flex-row items-start sm:items-center justify-between gap-space-md">
+<div class="flex items-center gap-space-md">
+<div class="w-10 h-10 rounded-full bg-tertiary/20 text-tertiary flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[24px]">check</span>
+</div>
+<div>
+<h4 class="font-headline-sm text-headline-sm text-on-surface font-semibold">Patch committed &amp; verified</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">
+                    Committed by <span class="font-code-sm text-code-sm text-primary">gitsuture-bot[bot]</span> with verified test execution logs.
+                  </p>
+</div>
+</div>
+<div class="flex items-center gap-2 font-code-sm text-code-sm text-tertiary bg-surface-container px-3 py-1.5 rounded">
+<span class="material-symbols-outlined text-[14px]">lock</span>
+<span>Verified Test Run</span>
+</div>
+</div>
+<div class="p-space-md rounded bg-surface-container font-body-sm text-body-sm text-on-surface-variant flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[18px]">comment</span>
+<span>Automated PR comment posted with full AST diagnostic logs and test outputs.</span>
+</div>
+<a class="text-primary hover:underline font-code-sm text-code-sm" href="#">View PR #42 →</a>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- 3. HOW IT WORKS (4-STEP TECHNICAL PIPELINE) -->
+<section class="max-w-7xl mx-auto px-6 lg:px-12 py-space-2xl relative">
+<div class="text-center max-w-3xl mx-auto mb-space-2xl">
+<span class="font-code-badge text-code-badge text-primary uppercase tracking-widest">ARCHITECTURE &amp; LIFECYCLE</span>
+<h2 class="mt-space-xs font-headline-xl text-headline-xl text-on-surface font-semibold">
+          Autonomous repair in four structured steps.
+        </h2>
+<p class="mt-space-sm font-body-md text-body-md text-on-surface-variant">
+          GitSuture isolates pull request failures and verifies proposed patches before updating branches.
+        </p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-space-md relative">
+<!-- Connector line for desktop -->
+<div class="hidden lg:block absolute top-1/2 left-8 right-8 h-0.5 bg-gradient-to-r from-primary/20 via-secondary/20 to-tertiary/20 -translate-y-8 z-0"></div>
+<!-- Step 1 -->
+<div class="relative z-10 p-space-lg rounded-xl bg-surface-container shadow-md flex flex-col justify-between hover:bg-surface-container-high transition-all">
+<div>
+<div class="flex items-center justify-between mb-space-md">
+<span class="font-code-lg text-code-lg text-primary font-bold">01</span>
+<span class="material-symbols-outlined text-primary text-[20px]">webhook</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface font-semibold mb-space-xs">Detect</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+              GitHub webhook catches failing PR check suites in real time (&lt; 120ms). GitSuture intercepts the event without altering CI queue precedence.
+            </p>
+</div>
+<div class="mt-space-md pt-space-sm font-code-badge text-code-badge text-outline">
+            Hook latency: ~45ms
+          </div>
+</div>
+<!-- Step 2 -->
+<div class="relative z-10 p-space-lg rounded-xl bg-surface-container shadow-md flex flex-col justify-between hover:bg-surface-container-high transition-all">
+<div>
+<div class="flex items-center justify-between mb-space-md">
+<span class="font-code-lg text-code-lg text-secondary font-bold">02</span>
+<span class="material-symbols-outlined text-secondary text-[20px]">account_tree</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface font-semibold mb-space-xs">Diagnose</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+              GitSuture spins up an ephemeral local container, isolates stack traces, and extracts the AST call graph to pinpoint the exact broken assertion.
+            </p>
+</div>
+<div class="mt-space-md pt-space-sm font-code-badge text-code-badge text-outline">
+            AST-guided analysis
+          </div>
+</div>
+<!-- Step 3 -->
+<div class="relative z-10 p-space-lg rounded-xl bg-surface-container shadow-md flex flex-col justify-between hover:bg-surface-container-high transition-all">
+<div>
+<div class="flex items-center justify-between mb-space-md">
+<span class="font-code-lg text-code-lg text-primary font-bold">03</span>
+<span class="material-symbols-outlined text-primary text-[20px]">healing</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface font-semibold mb-space-xs">Repair</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+              Context-constrained patch generation targeting the relevant error scope without touching unrelated files or dependencies.
+            </p>
+</div>
+<div class="mt-space-md pt-space-sm font-code-badge text-code-badge text-outline">
+            Gemini Models
+          </div>
+</div>
+<!-- Step 4 -->
+<div class="relative z-10 p-space-lg rounded-xl bg-surface-container shadow-md flex flex-col justify-between hover:bg-surface-container-high transition-all">
+<div>
+<div class="flex items-center justify-between mb-space-md">
+<span class="font-code-lg text-code-lg text-tertiary font-bold">04</span>
+<span class="material-symbols-outlined text-tertiary text-[20px]">task_alt</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface font-semibold mb-space-xs">Verify</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+              Patch is applied inside the isolated sandbox and the test suite is rerun. Only 100% verified patches update the branch and re-trigger green CI.
+            </p>
+</div>
+<div class="mt-space-md pt-space-sm font-code-badge text-code-badge text-outline">
+            Gatekeeper: Tests verified before commit
+          </div>
+</div>
+</div>
+</section>
+<!-- 4. DIFFERENTIATORS (TECHNICAL ADVANTAGES) -->
+<section class="max-w-7xl mx-auto px-6 lg:px-12 py-space-xl">
+<div class="mb-space-xl">
+<span class="font-code-badge text-code-badge text-tertiary uppercase tracking-widest">DESIGNED FOR SURGICAL PRECISION</span>
+<h2 class="mt-space-xs font-headline-xl text-headline-xl text-on-surface font-semibold">
+          Why engineering teams trust GitSuture in production.
+        </h2>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-space-lg">
+<!-- Card 1 -->
+<div class="p-space-lg rounded-xl bg-surface-container hover:bg-surface-container-high transition-all shadow-md group">
+<div class="w-12 h-12 rounded-lg bg-primary/10 text-primary flex items-center justify-center mb-space-md group-hover:scale-105 transition-transform">
+<span class="material-symbols-outlined text-[24px]">terminal</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface font-semibold">Sandboxed Execution</h3>
+<p class="mt-space-sm font-body-md text-body-md text-on-surface-variant">
+            Untrusted PR code runs strictly inside an isolated rootless Docker sandbox. Enforced with resource boundaries (<code class="font-code-sm text-code-sm text-primary">cpu: 2, mem: 2GiB</code>) and completely disabled outbound networking (<code class="font-code-sm text-code-sm text-primary">--net none</code>).
+          </p>
+</div>
+<!-- Card 2 -->
+<div class="p-space-lg rounded-xl bg-surface-container hover:bg-surface-container-high transition-all shadow-md group">
+<div class="w-12 h-12 rounded-lg bg-secondary/10 text-secondary flex items-center justify-center mb-space-md group-hover:scale-105 transition-transform">
+<span class="material-symbols-outlined text-[24px]">troubleshoot</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface font-semibold">Context-Aware Repair</h3>
+<p class="mt-space-sm font-body-md text-body-md text-on-surface-variant">
+            GitSuture uses call-graph stack analysis to provide the AI model only the precise AST context required to solve the error trace, eliminating broad extraneous code edits and unnecessary refactors.
+          </p>
+</div>
+<!-- Card 3 -->
+<div class="p-space-lg rounded-xl bg-surface-container hover:bg-surface-container-high transition-all shadow-md group">
+<div class="w-12 h-12 rounded-lg bg-tertiary/10 text-tertiary flex items-center justify-center mb-space-md group-hover:scale-105 transition-transform">
+<span class="material-symbols-outlined text-[24px]">verified_user</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface font-semibold">Verified Healing</h3>
+<p class="mt-space-sm font-body-md text-body-md text-on-surface-variant">
+            A generated patch is never pushed to GitHub unless the repaired workspace passes the entire test suite inside the reproduction container. Tests verified before commit to your repository.
+          </p>
+</div>
+<!-- Card 4 -->
+<div class="p-space-lg rounded-xl bg-surface-container hover:bg-surface-container-high transition-all shadow-md group">
+<div class="w-12 h-12 rounded-lg bg-primary/10 text-primary flex items-center justify-center mb-space-md group-hover:scale-105 transition-transform">
+<span class="material-symbols-outlined text-[24px]">lock_clock</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface font-semibold">Controlled Repair Loop</h3>
+<p class="mt-space-sm font-body-md text-body-md text-on-surface-variant">
+            Controlled repair loop with strict bounded attempt limits (max 3 loops). If an ambiguous or systemic architecture change is required, GitSuture steps aside gracefully and leaves diagnostic breadcrumbs.
+          </p>
+</div>
+</div>
+</section>
+<!-- 5. LIVE UNIFIED DIFF SECTION -->
+<section class="max-w-7xl mx-auto px-6 lg:px-12 py-space-2xl">
+<div class="text-center max-w-3xl mx-auto mb-space-xl">
+<span class="font-code-badge text-code-badge text-primary uppercase tracking-widest">HIGH FIDELITY DIFF VIEW</span>
+<h2 class="mt-space-xs font-headline-xl text-headline-xl text-on-surface font-semibold">
+          Surgical precision. Minimal patch footprint.
+        </h2>
+<p class="mt-space-sm font-body-md text-body-md text-on-surface-variant">
+          See the actual diff GitSuture committed to remediate PR #42.
+        </p>
+</div>
+<div class="max-w-4xl mx-auto rounded-xl bg-surface-container shadow-xl overflow-hidden">
+<!-- Diff Header -->
+<div class="bg-surface-container-high px-space-md py-space-sm flex items-center justify-between text-on-surface">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-outline text-[18px]">description</span>
+<span class="font-code-lg text-code-lg font-medium text-on-surface">src/auth/session.ts</span>
+<span class="font-code-badge text-code-badge bg-surface-container px-2 py-0.5 rounded text-outline">TypeScript</span>
+</div>
+<div class="flex items-center gap-space-md">
+<div class="flex items-center gap-1 font-code-badge text-code-badge">
+<span class="text-error font-medium">-2 lines</span>
+<span class="text-outline-variant">•</span>
+<span class="text-tertiary font-medium">+3 lines</span>
+</div>
+<button class="inline-flex items-center gap-1 px-2 py-1 rounded bg-surface-container text-on-surface-variant hover:text-on-surface font-code-badge text-code-badge transition-colors" id="copy-diff-btn">
+<span class="material-symbols-outlined text-[13px]">content_copy</span>
+<span>Copy Patch</span>
+</button>
+</div>
+</div>
+<!-- Diff Code Area -->
+<div class="bg-surface-dim font-code-sm text-code-sm text-on-surface overflow-x-auto p-space-sm">
+<!-- Context line -->
+<div class="flex items-center text-outline-variant px-space-xs py-0.5">
+<span class="w-10 text-right pr-4 select-none opacity-40">40</span>
+<span class="w-10 text-right pr-4 select-none opacity-40">40</span>
+<span class="w-4 select-none"> </span>
+<span class="text-on-surface-variant">export async function extractSession(req: AuthenticatedRequest) {</span>
+</div>
+<!-- Red deleted line 1 -->
+<div class="flex items-center bg-error-container/20 text-error px-space-xs py-0.5 rounded">
+<span class="w-10 text-right pr-4 select-none opacity-60">41</span>
+<span class="w-10 text-right pr-4 select-none opacity-20"> </span>
+<span class="w-4 select-none text-error font-bold">-</span>
+<span class="pl-4">const token = req.cookies.sessionToken;</span>
+</div>
+<!-- Red deleted line 2 -->
+<div class="flex items-center bg-error-container/20 text-error px-space-xs py-0.5 rounded">
+<span class="w-10 text-right pr-4 select-none opacity-60">42</span>
+<span class="w-10 text-right pr-4 select-none opacity-20"> </span>
+<span class="w-4 select-none text-error font-bold">-</span>
+<span class="pl-4">return await verifyToken(token);</span>
+</div>
+<!-- Green inserted line 1 -->
+<div class="flex items-center bg-tertiary-container/20 text-tertiary px-space-xs py-0.5 rounded">
+<span class="w-10 text-right pr-4 select-none opacity-20"> </span>
+<span class="w-10 text-right pr-4 select-none opacity-60">41</span>
+<span class="w-4 select-none text-tertiary font-bold">+</span>
+<span class="pl-4">const token = req.cookies?.sessionToken;</span>
+</div>
+<!-- Green inserted line 2 -->
+<div class="flex items-center bg-tertiary-container/20 text-tertiary px-space-xs py-0.5 rounded">
+<span class="w-10 text-right pr-4 select-none opacity-20"> </span>
+<span class="w-10 text-right pr-4 select-none opacity-60">42</span>
+<span class="w-4 select-none text-tertiary font-bold">+</span>
+<span class="pl-4">if (!token) throw new AuthenticationError('Missing session token');</span>
+</div>
+<!-- Green inserted line 3 -->
+<div class="flex items-center bg-tertiary-container/20 text-tertiary px-space-xs py-0.5 rounded">
+<span class="w-10 text-right pr-4 select-none opacity-20"> </span>
+<span class="w-10 text-right pr-4 select-none opacity-60">43</span>
+<span class="w-4 select-none text-tertiary font-bold">+</span>
+<span class="pl-4">return await verifyToken(token);</span>
+</div>
+<!-- Context line -->
+<div class="flex items-center text-outline-variant px-space-xs py-0.5">
+<span class="w-10 text-right pr-4 select-none opacity-40">43</span>
+<span class="w-10 text-right pr-4 select-none opacity-40">44</span>
+<span class="w-4 select-none"> </span>
+<span class="text-on-surface-variant">}</span>
+</div>
+</div>
+<!-- Before & After Test Suite Comparison -->
+<div class="bg-surface-container px-space-md py-space-sm grid grid-cols-1 md:grid-cols-2 gap-space-md">
+<div class="flex items-center gap-space-sm p-space-sm rounded bg-surface-container-low">
+<span class="material-symbols-outlined text-error text-[20px]">cancel</span>
+<div class="min-w-0">
+<span class="font-code-badge text-code-badge text-error uppercase font-semibold">Pre-Suture CI</span>
+<p class="font-code-sm text-code-sm text-on-surface truncate">Jest v29.7 • 17 passed, 1 failed</p>
+</div>
+</div>
+<div class="flex items-center gap-space-sm p-space-sm rounded bg-surface-container-low">
+<span class="material-symbols-outlined text-tertiary text-[20px]">check_circle</span>
+<div class="min-w-0">
+<span class="font-code-badge text-code-badge text-tertiary uppercase font-semibold">Post-Suture Verified</span>
+<p class="font-code-sm text-code-sm text-on-surface truncate">Jest v29.7 • 18 passed, 0 failed (412ms)</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- 6. SAFETY & TRUST ARCHITECTURE SECTION -->
+<section class="max-w-7xl mx-auto px-6 lg:px-12 py-space-2xl">
+<div class="text-center max-w-3xl mx-auto mb-space-2xl">
+<span class="font-code-badge text-code-badge text-secondary uppercase tracking-widest">DEFENSE-IN-DEPTH SECURITY</span>
+<h2 class="mt-space-xs font-headline-xl text-headline-xl text-on-surface font-semibold">
+          AI can propose the fix. The sandbox decides whether it works.
+        </h2>
+<p class="mt-space-sm font-body-md text-body-md text-on-surface-variant">
+          GitSuture is designed specifically for enterprise compliance, zero exfiltration risk, and strict principle-of-least-privilege operations.
+        </p>
+</div>
+<!-- Pipeline Diagram Widget -->
+<div class="p-space-lg rounded-xl bg-surface-container-low shadow-xl max-w-5xl mx-auto mb-space-xl overflow-x-auto">
+<div class="flex items-center justify-between min-w-[700px] gap-2 py-4">
+<div class="flex flex-col items-center text-center p-3 rounded-lg bg-surface-container-high w-32 shrink-0">
+<span class="material-symbols-outlined text-secondary text-[22px]">smart_toy</span>
+<span class="font-code-badge text-code-badge text-on-surface mt-1 font-semibold">AI Patch</span>
+<span class="font-caption text-caption text-outline">Gemini</span>
+</div>
+<span class="material-symbols-outlined text-outline-variant text-[20px]">arrow_forward</span>
+<div class="flex flex-col items-center text-center p-3 rounded-lg bg-surface-container-high w-40 shrink-0">
+<span class="material-symbols-outlined text-primary text-[22px]">deployed_code</span>
+<span class="font-code-badge text-code-badge text-on-surface mt-1 font-semibold">Docker Sandbox</span>
+<span class="font-caption text-caption text-outline">Isolated Node</span>
+</div>
+<span class="material-symbols-outlined text-outline-variant text-[20px]">arrow_forward</span>
+<div class="flex flex-col items-center text-center p-3 rounded-lg bg-surface-container-high w-40 shrink-0">
+<span class="material-symbols-outlined text-primary text-[22px]">rule</span>
+<span class="font-code-badge text-code-badge text-on-surface mt-1 font-semibold">Test Suite</span>
+<span class="font-caption text-caption text-outline">Verified in isolated sandbox</span>
+</div>
+<span class="material-symbols-outlined text-outline-variant text-[20px]">arrow_forward</span>
+<div class="flex flex-col items-center text-center p-3 rounded-lg bg-surface-container-high w-40 shrink-0">
+<span class="material-symbols-outlined text-tertiary text-[22px]">security</span>
+<span class="font-code-badge text-code-badge text-on-surface mt-1 font-semibold">Verified Gate</span>
+<span class="font-caption text-caption text-outline">Tests verified before commit</span>
+</div>
+<span class="material-symbols-outlined text-outline-variant text-[20px]">arrow_forward</span>
+<div class="flex flex-col items-center text-center p-3 rounded-lg bg-tertiary-container/20 text-tertiary w-36 shrink-0">
+<span class="material-symbols-outlined text-[22px]">lock</span>
+<span class="font-code-badge text-code-badge mt-1 font-bold">Signed Commit</span>
+<span class="font-caption text-caption text-tertiary/80">PR Updated</span>
+</div>
+</div>
+</div>
+<!-- 6 Security Guarantees Cards -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-space-md max-w-5xl mx-auto">
+<div class="p-space-md rounded-lg bg-surface-container shadow-sm">
+<div class="flex items-center gap-2 mb-1">
+<span class="material-symbols-outlined text-primary text-[18px]">wifi_off</span>
+<h4 class="font-headline-sm text-headline-sm text-on-surface font-semibold">Network Disabled</h4>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Sandbox spins up with <code class="font-code-badge text-code-badge text-primary">--net none</code>. Code cannot phone home or leak keys.</p>
+</div>
+<div class="p-space-md rounded-lg bg-surface-container shadow-sm">
+<div class="flex items-center gap-2 mb-1">
+<span class="material-symbols-outlined text-primary text-[18px]">timer</span>
+<h4 class="font-headline-sm text-headline-sm text-on-surface font-semibold">Execution Timeout</h4>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Strict <code class="font-code-badge text-code-badge text-primary">max_duration: 90s</code> execution cap stops runaway infinite loops or malicious freezes.</p>
+</div>
+<div class="p-space-md rounded-lg bg-surface-container shadow-sm">
+<div class="flex items-center gap-2 mb-1">
+<span class="material-symbols-outlined text-primary text-[18px]">memory</span>
+<h4 class="font-headline-sm text-headline-sm text-on-surface font-semibold">Resource Quotas</h4>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Capped at 2 CPUs, 2GiB memory, and 4GiB ephemeral storage per isolated task container.</p>
+</div>
+<div class="p-space-md rounded-lg bg-surface-container shadow-sm">
+<div class="flex items-center gap-2 mb-1">
+<span class="material-symbols-outlined text-tertiary text-[18px]">code_blocks</span>
+<h4 class="font-headline-sm text-headline-sm text-on-surface font-semibold">AST Patch Validation</h4>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Patches undergo static syntax and linter validation before sandbox compilation begins.</p>
+</div>
+<div class="p-space-md rounded-lg bg-surface-container shadow-sm">
+<div class="flex items-center gap-2 mb-1">
+<span class="material-symbols-outlined text-tertiary text-[18px]">encrypted</span>
+<h4 class="font-headline-sm text-headline-sm text-on-surface font-semibold">GitHub App Commits</h4>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Updates pushed via configured GitHub App bot with scoped permissions.</p>
+</div>
+<div class="p-space-md rounded-lg bg-surface-container shadow-sm">
+<div class="flex items-center gap-2 mb-1">
+<span class="material-symbols-outlined text-tertiary text-[18px]">visibility_off</span>
+<h4 class="font-headline-sm text-headline-sm text-on-surface font-semibold">Zero Production Access</h4>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">GitSuture operates strictly on PR branches and cannot push to protected production branches.</p>
+</div>
+</div>
+</section>
+<!-- 7. FINAL CTA -->
+<section class="max-w-7xl mx-auto px-6 lg:px-12 py-space-2xl relative">
+<div class="relative rounded-2xl bg-surface-container-high p-space-xl lg:p-space-2xl text-center overflow-hidden shadow-2xl">
+<div class="absolute inset-0 bg-gradient-to-b from-primary/5 via-transparent to-surface-container-high pointer-events-none"></div>
+<div class="relative z-10 max-w-2xl mx-auto flex flex-col items-center">
+<span class="font-code-badge text-code-badge text-primary uppercase tracking-widest mb-space-xs">GET STARTED IN UNDER 2 MINUTES</span>
+<h2 class="font-headline-xl text-headline-xl text-on-surface font-semibold sm:text-4xl">
+            Stop babysitting broken CI.
+          </h2>
+<p class="mt-space-sm font-headline-lg text-headline-lg bg-gradient-to-r from-primary to-tertiary bg-clip-text text-transparent font-medium">
+            Let GitSuture heal it.
+          </p>
+<div class="mt-space-xl flex flex-wrap items-center justify-center gap-space-md">
+<a class="inline-flex items-center gap-space-sm bg-primary-container text-on-primary-container px-space-lg py-space-md rounded font-headline-sm text-headline-sm transition-all shadow-md hover:bg-primary active:scale-[0.98]" href="#">
+<span class="material-symbols-outlined text-[18px]">terminal</span>
+<span>Install GitHub App</span>
+</a>
+<button class="inline-flex items-center gap-space-sm bg-surface-container text-on-surface hover:text-primary px-space-lg py-space-md rounded font-headline-sm text-headline-sm transition-colors shadow-sm" id="cta-scroll-demo">
+<span class="material-symbols-outlined text-[18px]">smart_display</span>
+<span>View Live Demo</span>
+</button>
+</div>
+<!-- CLI Extension Snippet with Copy -->
+<div class="mt-space-xl w-full max-w-md bg-surface-container-lowest rounded-lg p-space-sm flex items-center justify-between shadow-inner">
+<div class="flex items-center gap-2 font-code-sm text-code-sm text-on-surface overflow-x-auto">
+<span class="text-primary select-none">$</span>
+<span class="font-mono" id="cli-command">gh extension install gitsuture/gh-suture</span>
+</div>
+<button class="p-1.5 rounded hover:bg-surface-container text-on-surface-variant hover:text-primary transition-colors shrink-0" id="copy-cli-btn">
+<span class="material-symbols-outlined text-[16px]">content_copy</span>
+</button>
+</div>
+</div>
+</div>
+</section>
+</div>
+</div>
+<script>
+  // Interactive Timeline Controller
+  (function initHealingTimeline() {
+    let currentStage = 0;
+    const totalStages = 5;
+    let autoInterval = null;
+
+    const navButtons = document.querySelectorAll('.stage-nav-btn');
+    const panels = [
+      document.getElementById('stage-panel-0'),
+      document.getElementById('stage-panel-1'),
+      document.getElementById('stage-panel-2'),
+      document.getElementById('stage-panel-3'),
+      document.getElementById('stage-panel-4')
+    ];
+
+    function setStage(index) {
+      currentStage = index;
+      panels.forEach((p, i) => {
+        if (p) p.classList.toggle('hidden', i !== index);
+      });
+
+      navButtons.forEach((btn, i) => {
+        if (i === index) {
+          if (index === 0) {
+            btn.className = 'stage-nav-btn py-2 px-3 rounded flex flex-col items-center gap-1 transition-all bg-error-container text-on-error-container';
+          } else if (index === 4) {
+            btn.className = 'stage-nav-btn py-2 px-3 rounded flex flex-col items-center gap-1 transition-all bg-tertiary-container text-on-tertiary-container';
+          } else {
+            btn.className = 'stage-nav-btn py-2 px-3 rounded flex flex-col items-center gap-1 transition-all bg-primary/20 text-primary';
+          }
+        } else {
+          btn.className = 'stage-nav-btn py-2 px-3 rounded flex flex-col items-center gap-1 transition-all bg-surface-container-high text-on-surface-variant hover:text-on-surface';
+        }
+      });
+    }
+
+    navButtons.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        clearInterval(autoInterval);
+        const stageIndex = parseInt(btn.getAttribute('data-stage'), 10);
+        setStage(stageIndex);
+      });
+    });
+
+    function startAutoCycle() {
+      clearInterval(autoInterval);
+      currentStage = 0;
+      setStage(0);
+      autoInterval = setInterval(() => {
+        const next = (currentStage + 1) % totalStages;
+        setStage(next);
+      }, 3400);
+    }
+
+    const replayBtn = document.getElementById('replay-btn');
+    if (replayBtn) {
+      replayBtn.addEventListener('click', () => {
+        startAutoCycle();
+      });
+    }
+
+    // Scroll to interactive demo buttons
+    const demoButtons = [document.getElementById('hero-scroll-btn'), document.getElementById('cta-scroll-demo')];
+    demoButtons.forEach(b => {
+      if (b) {
+        b.addEventListener('click', () => {
+          const target = document.getElementById('interactive-demo');
+          if (target) {
+            target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            startAutoCycle();
+          }
+        });
+      }
+    });
+
+    // Copy Diff Action
+    const copyDiffBtn = document.getElementById('copy-diff-btn');
+    if (copyDiffBtn) {
+      copyDiffBtn.addEventListener('click', () => {
+        const diffText = `--- a/src/auth/session.ts\n+++ b/src/auth/session.ts\n@@ -41,2 +41,3 @@\n-  const token = req.cookies.sessionToken;\n-  return await verifyToken(token);\n+  const token = req.cookies?.sessionToken;\n+  if (!token) throw new AuthenticationError('Missing session token');\n+  return await verifyToken(token);`;
+        navigator.clipboard.writeText(diffText).then(() => {
+          copyDiffBtn.innerHTML = '<span class="material-symbols-outlined text-[13px]">check</span><span>Copied!</span>';
+          setTimeout(() => {
+            copyDiffBtn.innerHTML = '<span class="material-symbols-outlined text-[13px]">content_copy</span><span>Copy Patch</span>';
+          }, 2000);
+        });
+      });
+    }
+
+    // Copy CLI Snippet Action
+    const copyCliBtn = document.getElementById('copy-cli-btn');
+    const cliCommand = document.getElementById('cli-command');
+    if (copyCliBtn && cliCommand) {
+      copyCliBtn.addEventListener('click', () => {
+        navigator.clipboard.writeText(cliCommand.innerText.trim()).then(() => {
+          copyCliBtn.innerHTML = '<span class="material-symbols-outlined text-[16px] text-tertiary">check</span>';
+          setTimeout(() => {
+            copyCliBtn.innerHTML = '<span class="material-symbols-outlined text-[16px]">content_copy</span>';
+          }, 2000);
+        });
+      });
+    }
+
+    // Initialize auto loop on load
+    startAutoCycle();
+  })();
+</script></main><footer class="w-full bg-surface-container-lowest relative pt-space-2xl pb-space-xl"><div class="max-w-7xl mx-auto px-6 lg:px-12 flex flex-col gap-space-xl"><div class="flex flex-wrap items-center justify-between gap-space-md"><div class="flex flex-wrap items-center gap-space-lg"><div class="inline-flex items-center gap-space-xs px-space-sm py-space-2xs rounded bg-surface-container-low text-tertiary font-code-badge text-code-badge"><span class="w-2 h-2 rounded-full bg-tertiary animate-pulse"></span><span>Sandbox Engine: Operational</span></div><div class="inline-flex items-center gap-space-xs font-code-sm text-code-sm text-on-surface-variant"><span class="material-symbols-outlined text-[14px] text-primary">speed</span><span>Mean time to heal: &lt; 42s</span></div></div><div class="flex flex-wrap items-center gap-space-lg font-body-sm text-body-sm"><a class="text-on-surface-variant hover:text-on-surface transition-colors" data-path="docs" href="#">Docs</a><a class="text-on-surface-variant hover:text-on-surface transition-colors" data-path="security-whitepaper" href="#">Security Whitepaper</a><a class="text-on-surface-variant hover:text-on-surface transition-colors" data-path="github-repo" href="#">GitHub Repo</a><a class="text-on-surface-variant hover:text-on-surface transition-colors" data-path="changelog" href="#">Changelog</a></div></div><div class="flex flex-wrap items-center justify-between gap-space-sm font-code-sm text-code-sm text-on-surface-variant"><div class="flex items-center gap-space-xs"><span class="text-primary">$</span><span>gitsuture</span><span class="text-outline-variant">|</span><span>autonomous PR repair</span></div><div>© 2025 GitSuture. Tests verified before commit.</div></div></div></footer></body></html>

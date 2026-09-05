@@ -1,0 +1,9 @@
+{
+  "name": "dummy-pass",
+  "version": "1.0.0",
+  "private": true,
+  "description": "GitSuture test fixture — always passes",
+  "scripts": {
+    "test": "node test.js"
+  }
+}

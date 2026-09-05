@@ -1,0 +1,32 @@
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model PullRequest {
+  id           String    @id @default(uuid())
+  repoFullName String
+  prNumber     Int
+  headBranch   String
+  headSha      String
+  sender       String
+  jobs         HealJob[]
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+}
+
+model HealJob {
+  id              String      @id @default(uuid())
+  pullRequestId   String
+  pullRequest     PullRequest @relation(fields: [pullRequestId], references: [id])
+  status          String      // 'QUEUED' | 'CLONING' | 'TESTING' | 'DIAGNOSING' | 'VERIFYING' | 'RESOLVED' | 'FAILED'
+  attempt         Int         @default(0)
+  initialError    String?     // Storing Agent 1's stack trace
+  appliedDiff     String?     // Storing Agent 2's patch
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+}

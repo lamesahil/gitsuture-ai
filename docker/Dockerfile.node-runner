@@ -1,0 +1,37 @@
+# docker/Dockerfile.node-runner
+#
+# GitSuture — Node.js Sandbox Base Image (Phase 1 Foundation)
+#
+# This image provides the Node.js execution environment that will be used
+# by Agent 1 (TEST EXECUTOR) to clone repositories and run test suites
+# in isolation.
+#
+# Phase 2 implementation complete:
+#   - Agent 1 manages Dockerode-based container lifecycle
+#   - Volume mounts for cloned repository code (read-only)
+#   - stdout/stderr multiplexed capture for stack trace extraction
+#   - Strict network isolation, CPU/Memory limits, and timeouts applied
+
+FROM node:20-alpine
+
+# ── System dependencies ────────────────────────────────────────────────────────
+# git     — required to clone repositories
+# openssh — required for authenticated git operations
+RUN apk add --no-cache git openssh-client
+
+# ── Non-root user ──────────────────────────────────────────────────────────────
+# Run test suites as an unprivileged user for defense-in-depth.
+RUN addgroup -S gitsuture && adduser -S gitsuture -G gitsuture
+
+# ── Working directory ──────────────────────────────────────────────────────────
+WORKDIR /workspace
+
+# Ensure the non-root user owns the workspace.
+RUN chown gitsuture:gitsuture /workspace
+
+USER gitsuture
+
+# ── Default command ────────────────────────────────────────────────────────────
+# Overridden at runtime by Agent 1 to run the actual test command.
+# Example: docker run --rm gitsuture-runner npm test
+CMD ["node", "--version"]
