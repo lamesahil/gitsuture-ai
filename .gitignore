@@ -25,3 +25,11 @@ Thumbs.db
 
 # Prisma databases
 prisma/*.db
+
+# Scratch and debug files
+scratch*.ts
+scratch*.js
+
+# Test fixture generated artifacts
+tests/fixtures/*/package-lock.json
+tests/fixtures/*/node_modules/

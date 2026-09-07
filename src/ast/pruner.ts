@@ -69,12 +69,12 @@ export function extractEnclosingBlock(code: string, targetLine: number): string 
       },
     });
 
-    if (bestNode && bestNode.loc) {
+    if (bestNode && (bestNode as any).loc) {
       // Split original code by lines to extract the exact slice.
       // loc lines are 1-indexed.
       const codeLines = code.split('\n');
-      const startLineIdx = bestNode.loc.start.line - 1;
-      const endLineIdx = bestNode.loc.end.line;
+      const startLineIdx = (bestNode as any).loc.start.line - 1;
+      const endLineIdx = (bestNode as any).loc.end.line;
       return codeLines.slice(startLineIdx, endLineIdx).join('\n');
     }
 

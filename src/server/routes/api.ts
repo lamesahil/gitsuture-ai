@@ -56,7 +56,7 @@ apiRouter.get('/jobs', async (_req: Request, res: Response) => {
 
 apiRouter.get('/jobs/:id', async (req: Request, res: Response): Promise<void> => {
   try {
-    const { id } = req.params;
+    const id = req.params.id as string;
     const job = await prisma.healJob.findUnique({
       where: { id },
       include: {

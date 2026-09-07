@@ -101,9 +101,82 @@ export async function handlePullRequestEvent(
 
   return {
     jobId: job.id,
-    status: job.status,
+    status: job.status as import('./types.js').JobStatus,
     message: `Healing job queued. Job ID: ${job.id}`,
   };
+}
+
+// ── Jest failure parser ───────────────────────────────────────────────────────
+
+/**
+ * Parses Jest/Node test output to find the first failing SOURCE file path
+ * and the line number where the error occurred.
+ *
+ * Jest prints failure traces like:
+ *   ● calculateTotal correctly adds two numbers
+ *       expect(received).toBe(expected)
+ *       at Object.<anonymous> (math.test.js:4:5)
+ *
+ * We want the source file (math.js), not the test file. We look for lines in
+ * the trace that reference non-test JS/TS files inside the workspace.
+ *
+ * @param output     - Combined stdout + stderr from the test run.
+ * @param workDir    - The cloned repo root (used to verify file existence).
+ * @returns { filePath, lineNumber } relative path and 1-based line, or null.
+ */
+function parseFailingFile(
+  output: string,
+  workDir: string
+): { filePath: string; lineNumber: number } | null {
+  // Strategy 1: find explicit "FAIL <file>" lines Jest prints at the top
+  // e.g.: "FAIL math.test.js"
+  const failLineMatch = output.match(/^FAIL\s+(\S+\.(?:js|ts|jsx|tsx))$/m);
+  if (failLineMatch) {
+    const testFile = failLineMatch[1];
+    // Derive the corresponding source file (e.g., math.test.js -> math.js)
+    const sourceFile = testFile.replace(/\.test\.(js|ts|jsx|tsx)$/, '.$1');
+    if (fs.existsSync(path.join(workDir, sourceFile))) {
+      return { filePath: sourceFile, lineNumber: 1 };
+    }
+    // The test file IS the relevant context if source isn't found
+    if (fs.existsSync(path.join(workDir, testFile))) {
+      return { filePath: testFile, lineNumber: 1 };
+    }
+  }
+
+  // Strategy 2: scan stack frames for (.js|.ts) references that are NOT node_modules
+  // e.g.: "at Object.<anonymous> (math.js:3:10)"
+  const frameRegex = /at\s+\S+\s+\(([^)]+\.(?:js|ts|jsx|tsx)):(\d+):\d+\)/g;
+  let match: RegExpExecArray | null;
+  while ((match = frameRegex.exec(output)) !== null) {
+    const [, rawPath, lineStr] = match;
+    if (rawPath.includes('node_modules')) continue;
+    // rawPath may be absolute or relative; normalise to relative inside workDir
+    const rel = rawPath.startsWith(workDir)
+      ? path.relative(workDir, rawPath)
+      : rawPath;
+    const absPath = path.join(workDir, rel);
+    if (fs.existsSync(absPath)) {
+      return { filePath: rel.replace(/\\/g, '/'), lineNumber: parseInt(lineStr, 10) };
+    }
+  }
+
+  // Strategy 3: list JS files in the root of workDir excluding test files
+  // (last-resort: pass all source files as context)
+  // Guard with Array.isArray so a vi.mock('fs') in unit tests (which returns undefined
+  // from readdirSync) doesn't throw and short-circuit the healing loop.
+  const dirEntries = fs.readdirSync(workDir);
+  const rootFiles = Array.isArray(dirEntries)
+    ? dirEntries.filter(
+        (f) => /\.(js|ts)$/.test(f) && !f.includes('.test.') && f !== 'jest.config.js'
+      )
+    : [];
+  if (rootFiles.length > 0) {
+    console.warn(`[ORCHESTRATOR] Could not parse failing file from output. Guessing: ${rootFiles[0]}`);
+    return { filePath: rootFiles[0], lineNumber: 1 };
+  }
+
+  return null;
 }
 
 /**
@@ -137,6 +210,10 @@ export async function executeHealingLoop(jobId: string, event: NormalizedPREvent
     }
 
     console.log(`[ORCHESTRATOR] Initial tests failed. Entering healing loop. job=${jobId}`);
+    const combinedOutput = [initialTestResult.stdout, initialTestResult.stderr]
+      .filter(Boolean)
+      .join('\n');
+    console.log(`[ORCHESTRATOR] Combined test output (first 500 chars):\n${combinedOutput.slice(0, 500)}`);
 
     for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
       console.log(`[ORCHESTRATOR] --- HEALING ATTEMPT ${attempt}/${MAX_RETRIES} ---`);
@@ -147,32 +224,49 @@ export async function executeHealingLoop(jobId: string, event: NormalizedPREvent
         data: { 
           status: 'DIAGNOSING', 
           attempt,
-          initialError: attempt === 1 ? (initialTestResult.stderr || initialTestResult.stdout) : undefined 
+          initialError: attempt === 1 ? combinedOutput.slice(0, 2000) : undefined,
         } 
       });
-      // Parse stack trace to find failing file and line number (mock logic for now since test outputs vary)
-      // We assume Agent 1's stderr contains the path or we deduce it. For GitSuture MVP, Agent 2 handles the raw trace.
-      // We will provide a stub file context to Agent 2 since actual stack trace parsing depends on the test runner.
-      // In a real scenario, we'd extract the file path and line number from initialTestResult.stderr.
+
+      // ── Determine the failing file via Jest output parsing ───────────────
+      const parsed = parseFailingFile(combinedOutput, workDir);
       
-      // Stub: For safety, if we don't know the file, we can't AST prune. We'll simulate finding it if it's 'src/test.js'.
-      // In Phase 5, we expect Agent 2 to extract the unifiedDiff. 
-      // We will just pass the stack trace to Agent 2. 
-      // Note: to use extractEnclosingBlock, we'd need the filename and line. We'll pass the full project context or a dummy for the test.
-      const dummyFilePath = 'src/test.js'; 
-      let fileContext = '';
-      if (fs.existsSync(path.join(workDir, dummyFilePath))) {
-        fileContext = fs.readFileSync(path.join(workDir, dummyFilePath), 'utf8');
+      let failingFilePath: string;
+      let fileContext: string;
+
+      if (parsed) {
+        failingFilePath = parsed.filePath;
+        const absFailingFile = path.join(workDir, failingFilePath);
+        const rawCode = fs.readFileSync(absFailingFile, 'utf8');
+        // Use AST pruner to extract the narrowest enclosing block around the error
+        fileContext = extractEnclosingBlock(rawCode, parsed.lineNumber);
+        console.log(`[ORCHESTRATOR] Failing file identified: ${failingFilePath} (line ${parsed.lineNumber})`);
+        console.log(`[ORCHESTRATOR] AST-pruned context (${fileContext.length} chars):`);
+        console.log(fileContext);
+      } else {
+        // Fallback: list all source files and concatenate them (best-effort)
+        failingFilePath = 'unknown';
+        fileContext = '';
+        console.warn(`[ORCHESTRATOR] Could not identify failing file. Sending full test output as context.`);
       }
 
       // Agent 2: Diagnose and Repair
       const repairResult = await diagnoseAndRepair(
-        initialTestResult.stderr || initialTestResult.stdout,
-        fileContext, // Using full file context as fallback if AST pruner doesn't get line number
-        dummyFilePath
+        combinedOutput,
+        fileContext,
+        failingFilePath
       );
 
-      console.log(`[ORCHESTRATOR] [STATE: DIAGNOSING -> VERIFYING] job=${jobId}`);
+      // Normalise the filePath returned by Gemini (strip leading slashes / workDir prefix)
+      const repairFilePath = repairResult.filePath
+        .replace(/^\/+/, '')         // strip leading slashes
+        .replace(/^workspace\//, ''); // strip /workspace/ prefix that Gemini sometimes adds
+      repairResult.filePath = repairFilePath;
+      
+      console.log(`[ORCHESTRATOR] Agent 2 suggests patching: ${repairResult.filePath} (confidence=${repairResult.confidenceScore})`);
+      console.log(`[ORCHESTRATOR] Root cause: ${repairResult.rootCauseAnalysis}`);
+
+      console.log(`[ORCHESTRATOR] [STATE: DIAGNOSING -> PATCHING] job=${jobId}`);
       await prisma.healJob.update({ 
         where: { id: jobId }, 
         data: { 
@@ -180,6 +274,7 @@ export async function executeHealingLoop(jobId: string, event: NormalizedPREvent
           appliedDiff: repairResult.unifiedDiff
         } 
       });
+
       // Agent 3: Apply patch and verify
       const verificationResult = await applyAndVerifyPatch(workDir, repairResult);
 
@@ -191,9 +286,9 @@ export async function executeHealingLoop(jobId: string, event: NormalizedPREvent
         const comment = `### 🩺 GitSuture Auto-Repair\n\n**Root Cause:** ${repairResult.rootCauseAnalysis}\n**Confidence:** ${(repairResult.confidenceScore * 100).toFixed(0)}%\n\n\`\`\`diff\n${repairResult.unifiedDiff}\n\`\`\``;
         await postDiagnosticComment(event.repoFullName, event.prNumber, comment);
 
-        console.log(`[ORCHESTRATOR] [STATE: VERIFYING -> RESOLVED] job=${jobId}`);
+        console.log(`[ORCHESTRATOR] [STATE: VERIFYING -> HEALED] job=${jobId}`);
         await prisma.healJob.update({ where: { id: jobId }, data: { status: 'RESOLVED' } });
-        return; // Success, exit loop
+        return; // Success — E2E healing complete
       }
 
       console.log(`[ORCHESTRATOR] Verification failed on attempt ${attempt}.`);

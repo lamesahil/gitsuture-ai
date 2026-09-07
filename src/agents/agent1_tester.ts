@@ -166,6 +166,35 @@ export async function runTestsInSandbox(
     );
   }
 
+  // ── Pre-flight: install dependencies on host so the read-only sandbox has them 
+  try {
+    const { execSync } = await import('child_process');
+    const fs = await import('fs');
+    const path = await import('path');
+    
+    console.log(`[AGENT1] Installing dependencies on host for ${localRepoPath}...`);
+    execSync('npm install --ignore-scripts --no-audit --no-fund', { 
+      cwd: localRepoPath, 
+      stdio: 'ignore' 
+    });
+
+    // Fix CRLF issues in .bin shell wrappers on Windows for Linux Docker
+    const binDir = path.join(localRepoPath, 'node_modules', '.bin');
+    if (fs.existsSync(binDir)) {
+      for (const file of fs.readdirSync(binDir)) {
+        const filePath = path.join(binDir, file);
+        if (fs.statSync(filePath).isFile()) {
+          const content = fs.readFileSync(filePath, 'utf8');
+          if (content.includes('\r\n')) {
+            fs.writeFileSync(filePath, content.replace(/\r\n/g, '\n'));
+          }
+        }
+      }
+    }
+  } catch (err) {
+    console.warn(`[AGENT1] Failed to pre-install dependencies on host: ${err}`);
+  }
+
   const docker = dockerClient ?? getDockerClient();
   const timeoutMs = options.timeoutMs ?? SANDBOX_DEFAULTS.timeoutMs;
   const startTime = Date.now();
