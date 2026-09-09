@@ -300,7 +300,27 @@ During the flow:
 
 ## 📸 Screenshots
 
-*(Screenshots will be added here prior to final submission. Expect visuals of the Landing Page, Dashboard Timeline, and Diagnostic Split-View).*
+### Landing Page — Code Healing Field
+
+![GitSuture landing page showing the hero headline "Code breaks. GitSuture fixes it." with the 3D abstract healing network and 5-step pipeline breadcrumb](docs/screenshots/landing_page.png)
+
+*The hero section features a live 3D geometric network (React Three Fiber) representing GitSuture's intelligent dependency graph, alongside the real-time pipeline status strip: **01 FAIL → 02 ANALYZE → 03 PATCH → 04 VERIFY → 05 HEALED**.*
+
+---
+
+### Dashboard — Live HEALED Run
+
+![GitSuture dashboard showing a single intercepted PR (local/demo-target#1) with a green HEALED badge and the full 6-step timeline: Intercepted › Cloning › Testing › Diagnosing › Verifying › Healed](docs/screenshots/dashboard_healed.png)
+
+*A genuine, single-job clean state captured from the live E2E run. The sidebar shows **1 job**, the status badge reads **HEALED**, and every breadcrumb node in the timeline is lit — confirming the full `QUEUED → CLONING → TESTING → DIAGNOSING → VERIFYING → RESOLVED` state machine executed successfully.*
+
+---
+
+### Diagnostic Split-View — Agent 1 stderr · Agent 2 Patch · Agent 3 Verified
+
+![GitSuture diagnostic split-view showing the Jest failure output on the left (Expected: 15 / Received: "105") and the Gemini-generated unified diff on the right with a red "return a + "" + b" removed and green "return a + b" added, stamped Agent 3 · Verified](docs/screenshots/diagnostic_diff.png)
+
+*Left pane: **Agent 1 (Docker Sandbox)** captures the raw Jest failure — `Expected: 15 / Received: "105"` — proving the string-concatenation bug. Right pane: **Agent 2 (Gemini)** generates the one-line unified diff (`- return a + "" + b` → `+ return a + b`), stamped **Agent 3 · Verified** after the second Docker sandbox run confirmed `exitCode=0`.*
 
 ## 🧩 Design Philosophy
 
