@@ -191,7 +191,7 @@ To run GitSuture locally, you need:
 * **Docker Desktop / Engine:** Must be running in the background for Agent 1.
 * **Gemini API Key:** From Google AI Studio.
 
-## 🚀 Installation
+## 🚀 Local Development Setup
 
 Clone the repository:
 ```bash
@@ -213,6 +213,23 @@ npm install
 cd ..
 ```
 
+## 🚀 Production Deployment (VM)
+
+GitSuture requires a **bare-metal Virtual Machine** (e.g., Ubuntu on DigitalOcean, AWS EC2, or Hetzner). Standard PaaS platforms (Vercel, Heroku) are incompatible because Agent 1 requires direct host access to the Docker daemon (`/var/run/docker.sock`) to spawn isolated sandboxes.
+
+**Architecture:**
+* Node.js / PM2 for the backend daemon.
+* Caddy Reverse Proxy for HTTPS and static file serving.
+* SQLite (`dev.db`) on the VM disk for persistence.
+
+**Manual First-Time Setup on a Fresh Ubuntu VM:**
+1. Clone the repository to `/opt/gitsuture`.
+2. Run the bootstrap script as root: `sudo bash /opt/gitsuture/scripts/deploy.sh`. This installs Node 20, Docker, Caddy, PM2, and pre-pulls the Agent 1 image.
+3. Create your `.env` file in `/opt/gitsuture` using `.env.example` as a template.
+4. Copy `Caddyfile.example` to `/etc/caddy/Caddyfile` and replace the placeholder with your actual domain.
+5. Reload Caddy (`sudo systemctl reload caddy`).
+6. Run `npm install`, `npm run build`, and start the backend: `pm2 start ecosystem.config.js`.
+
 ## 🔐 Environment Variables
 
 Create a `.env` file in the root directory. Use `.env.example` as a template:
@@ -221,13 +238,13 @@ Create a `.env` file in the root directory. Use `.env.example` as a template:
 # Server
 PORT=3001
 
-# AI
+# AI (Required for Agent 2)
 GEMINI_API_KEY="your_gemini_api_key_here"
 
 # Database
 DATABASE_URL="file:./dev.db"
 
-# GitHub Ops (Required for webhook ingestion and pushing)
+# GitHub Ops (Required for webhook ingestion and pushing via PAT)
 GITHUB_WEBHOOK_SECRET="your_custom_secret_string"
 GITHUB_TOKEN="your_personal_access_token_here"
 ```

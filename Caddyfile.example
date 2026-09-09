@@ -8,13 +8,7 @@ your-domain.com {
     file_server
     try_files {path} /index.html
 
-    # 2. Reverse proxy API endpoints to the backend PM2 process
-    handle_path /api/* {
-        reverse_proxy localhost:3001
-    }
-
-    # 3. Reverse proxy GitHub webhook events to the backend
-    handle_path /webhooks/* {
-        reverse_proxy localhost:3001
-    }
+    # 2. Reverse proxy API endpoints (including webhooks at /api/webhooks/*) to the backend PM2 process
+    # This preserves the /api path exactly as the Node.js Express router expects.
+    reverse_proxy /api/* localhost:3001
 }
