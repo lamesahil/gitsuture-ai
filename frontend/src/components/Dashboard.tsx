@@ -185,7 +185,7 @@ function DiffRenderer({ diff }: { diff: string }) {
 
 export default function Dashboard() {
   // P0 fix: corrected port from 3000 → 3001 to match .env PORT=3001
-  const { data: jobs, error, isLoading } = useSWR<HealJob[]>('http://localhost:3001/api/jobs', fetcher, {
+  const { data: jobs, error, isLoading } = useSWR<HealJob[]>('/api/jobs', fetcher, {
     refreshInterval: 3000,
   });
   const [selectedJobId, setSelectedJobId] = useState<string | null>(null);
