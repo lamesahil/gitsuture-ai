@@ -1,0 +1,20 @@
+# Caddyfile.example
+# Replace your-domain.com with your actual public domain or IP address.
+# Copy this file to /etc/caddy/Caddyfile and run `systemctl reload caddy`.
+
+your-domain.com {
+    # 1. Serve the static frontend built by Vite
+    root * /opt/gitsuture/frontend/dist
+    file_server
+    try_files {path} /index.html
+
+    # 2. Reverse proxy API endpoints to the backend PM2 process
+    handle_path /api/* {
+        reverse_proxy localhost:3001
+    }
+
+    # 3. Reverse proxy GitHub webhook events to the backend
+    handle_path /webhooks/* {
+        reverse_proxy localhost:3001
+    }
+}
