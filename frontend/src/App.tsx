@@ -44,7 +44,8 @@ export default function App() {
         )}
       </main>
 
-      <Footer />
+      {/* Footer is hidden in Dashboard mode — the panel fills the full viewport */}
+      {currentView === 'landing' && <Footer />}
     </div>
   )
 }

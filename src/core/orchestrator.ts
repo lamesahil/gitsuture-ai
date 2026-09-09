@@ -129,8 +129,8 @@ function parseFailingFile(
   workDir: string
 ): { filePath: string; lineNumber: number } | null {
   // Strategy 1: find explicit "FAIL <file>" lines Jest prints at the top
-  // e.g.: "FAIL math.test.js"
-  const failLineMatch = output.match(/^FAIL\s+(\S+\.(?:js|ts|jsx|tsx))$/m);
+  // e.g.: "FAIL ./math.test.js (8.063 s)"
+  const failLineMatch = output.match(/^FAIL\s+(\S+\.(?:js|ts|jsx|tsx))(?:\s+\(.*?\))?$/m);
   if (failLineMatch) {
     const testFile = failLineMatch[1];
     // Derive the corresponding source file (e.g., math.test.js -> math.js)
@@ -266,7 +266,7 @@ export async function executeHealingLoop(jobId: string, event: NormalizedPREvent
       console.log(`[ORCHESTRATOR] Agent 2 suggests patching: ${repairResult.filePath} (confidence=${repairResult.confidenceScore})`);
       console.log(`[ORCHESTRATOR] Root cause: ${repairResult.rootCauseAnalysis}`);
 
-      console.log(`[ORCHESTRATOR] [STATE: DIAGNOSING -> PATCHING] job=${jobId}`);
+      console.log(`[ORCHESTRATOR] [STATE: DIAGNOSING -> VERIFYING] job=${jobId}`);
       await prisma.healJob.update({ 
         where: { id: jobId }, 
         data: { 

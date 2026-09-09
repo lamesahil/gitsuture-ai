@@ -12,6 +12,8 @@ GitSuture replaces the manual cycle of pulling a broken branch, deciphering stac
 
 **Webhook Trigger** → **Job Queued** → **Agent 1 (Test Executor)** → **Agent 2 (Diagnosis & Repair)** → **Agent 3 (Patch & Verification)** → **Verified Result**
 
+> **AI proposes the patch; deterministic execution and verification decide whether it is accepted.**
+
 Crucially, GitSuture **does not blindly trust AI.** Every generated patch must be applied to the local repository and proven to pass the test suite inside a secure Docker sandbox. If the patch fails, GitSuture rolls back the code and retries (up to a strict limit of 3 attempts).
 
 ## 🎯 The Problem
@@ -255,7 +257,7 @@ The backend is fully tested using Vitest, with HTTP requests and Docker environm
 
 To run the test suite:
 ```bash
-npm run test
+npm test
 ```
 
 **Test Coverage Includes:**
@@ -267,10 +269,29 @@ npm run test
 
 ## 🎬 End-to-End Demo
 
-To see GitSuture in action without configuring a live GitHub App, we have provided a mock webhook script.
+To see GitSuture in action without configuring a live GitHub App, we have provided a mock webhook script that targets a deliberately broken repository (`gitsuture-demo-target`).
 
+### The Verified Flow
+When the webhook is triggered, you can observe the following strict progression in the logs and the UI:
+
+**BROKEN TEST** → **QUEUED** → **CLONING** → **TESTING** → **DIAGNOSING** → **REPAIRING/PATCHING** → **VERIFYING** → **RESOLVED/HEALED**
+
+### The Live Example
+In our demo target, a function meant to calculate a sum was intentionally broken:
+```javascript
+// INTENTIONAL BUG: Returns a string concatenation instead of numeric sum
+return a + "" + b;
+```
+
+During the flow:
+1. **Agent 1** runs tests in Docker and captures the failure.
+2. **Agent 2** diagnoses the exact line using AST extraction and generates the fix: `return a + b;`.
+3. **Agent 3** applies the patch to the isolated clone and triggers Agent 1 again.
+4. **Agent 1** confirms the tests pass. The commit is pushed, and the job is **HEALED**.
+
+### Try It Locally
 1. Ensure both the Backend and Frontend are running.
-2. Ensure you have a deliberately failing dummy project located at `../gitsuture-demo-target` (relative to the root folder).
+2. Ensure you have the `gitsuture-demo-target` repository cloned as a sibling directory (`../gitsuture-demo-target`).
 3. Open a third terminal in the root directory and run:
    ```bash
    npm run mock:webhook
@@ -279,11 +300,7 @@ To see GitSuture in action without configuring a live GitHub App, we have provid
 
 ## 📸 Screenshots
 
-*(Add screenshots of your application here before public release)*
-* [Placeholder: Landing Page with 3D UI]
-* [Placeholder: Dashboard showing QUEUED state]
-* [Placeholder: Diagnostic view showing raw stderr vs unified diff]
-* [Placeholder: Dashboard showing RESOLVED state]
+*(Screenshots will be added here prior to final submission. Expect visuals of the Landing Page, Dashboard Timeline, and Diagnostic Split-View).*
 
 ## 🧩 Design Philosophy
 

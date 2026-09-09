@@ -38,12 +38,12 @@ import type { SandboxOptions, SandboxResult } from '../core/types.js';
 export const SANDBOX_DEFAULTS = {
   image: 'node:20-alpine',
   testCommand: 'npm test',
-  /** 45-second hard kill timeout. */
-  timeoutMs: 45_000,
-  /** 512 MB memory limit. */
-  memoryBytes: 536_870_912,
-  /** 1 CPU core expressed in nanocpus. */
-  nanoCpus: 1_000_000_000,
+  /** 120-second hard kill timeout. */
+  timeoutMs: 120_000,
+  /** 1024 MB memory limit. */
+  memoryBytes: 1_073_741_824,
+  /** 4 CPU cores expressed in nanocpus. */
+  nanoCpus: 4_000_000_000,
 } as const;
 
 // ── Container configuration ───────────────────────────────────────────────────

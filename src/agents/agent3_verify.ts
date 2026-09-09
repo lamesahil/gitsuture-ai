@@ -38,7 +38,13 @@ export async function applyAndVerifyPatch(
   const originalCode = fs.readFileSync(fullFilePath, 'utf8');
 
   // 3. Apply the Unified Diff patch
-  const patchedCode = applyPatch(originalCode, repairResult.unifiedDiff);
+  let patchedCode: string | boolean = false;
+  try {
+    patchedCode = applyPatch(originalCode, repairResult.unifiedDiff);
+  } catch (err) {
+    console.error(`[AGENT3] Error parsing patch: ${(err as Error).message}`);
+    return { status: 'FAILED' };
+  }
   
   if (patchedCode === false) {
     console.error(`[AGENT3] Failed to apply patch cleanly to ${repairResult.filePath}`);
