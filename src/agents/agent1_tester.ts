@@ -42,8 +42,8 @@ export const SANDBOX_DEFAULTS = {
   timeoutMs: 120_000,
   /** 1024 MB memory limit. */
   memoryBytes: 1_073_741_824,
-  /** 4 CPU cores expressed in nanocpus. */
-  nanoCpus: 4_000_000_000,
+  /** 1 CPU core expressed in nanocpus (to run safely on 2-vCPU instances). */
+  nanoCpus: 1_000_000_000,
 } as const;
 
 // ── Container configuration ───────────────────────────────────────────────────
