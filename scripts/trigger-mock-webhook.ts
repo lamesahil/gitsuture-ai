@@ -1,3 +1,10 @@
+/**
+ * scripts/trigger-mock-webhook.ts
+ * 
+ * LOCAL TESTING ONLY: This script simulates a GitHub webhook event
+ * to trigger the local orchestrator pipeline for end-to-end testing.
+ * Do not use in production.
+ */
 import crypto from 'crypto';
 import 'dotenv/config';
 
@@ -8,19 +15,24 @@ if (!WEBHOOK_SECRET) {
   process.exit(1);
 }
 
+// Use environment variables for local testing payload, with safe generic defaults
+const TARGET_REPO_URL = process.env.TARGET_REPO_URL || "file:///path/to/local/repo";
+const TARGET_BRANCH = process.env.TARGET_BRANCH || "feature/fix-bug";
+const TARGET_FULL_NAME = process.env.TARGET_FULL_NAME || "local/demo-repo";
+
 const payload = {
   action: "opened",
   number: 1,
   pull_request: {
     number: 1,
     head: {
-      ref: "feature/fix-math",
+      ref: TARGET_BRANCH,
       sha: "0000000000000000000000000000000000000000"
     }
   },
   repository: {
-    full_name: "local/demo-target",
-    clone_url: "file://d:/Project/gitsuture-demo-target"
+    full_name: TARGET_FULL_NAME,
+    clone_url: TARGET_REPO_URL
   },
   sender: {
     login: "demo-user"

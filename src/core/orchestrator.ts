@@ -29,6 +29,13 @@ import { cloneRepository, pushSignedCommit, postDiagnosticComment } from '../git
 import { extractEnclosingBlock } from '../ast/pruner.js';
 import type { NormalizedPREvent, JobAck } from './types.js';
 
+export function isPatchSafe(filePath: string): boolean {
+  if (filePath.includes('tests/')) return false;
+  if (filePath.includes('test/')) return false;
+  if (/\.(test|spec)\.(ts|js)$/.test(filePath)) return false;
+  return true;
+}
+
 // ── Main entry point ──────────────────────────────────────────────────────────
 
 /**
@@ -128,23 +135,7 @@ function parseFailingFile(
   output: string,
   workDir: string
 ): { filePath: string; lineNumber: number } | null {
-  // Strategy 1: find explicit "FAIL <file>" lines Jest prints at the top
-  // e.g.: "FAIL ./math.test.js (8.063 s)"
-  const failLineMatch = output.match(/^FAIL\s+(\S+\.(?:js|ts|jsx|tsx))(?:\s+\(.*?\))?$/m);
-  if (failLineMatch) {
-    const testFile = failLineMatch[1];
-    // Derive the corresponding source file (e.g., math.test.js -> math.js)
-    const sourceFile = testFile.replace(/\.test\.(js|ts|jsx|tsx)$/, '.$1');
-    if (fs.existsSync(path.join(workDir, sourceFile))) {
-      return { filePath: sourceFile, lineNumber: 1 };
-    }
-    // The test file IS the relevant context if source isn't found
-    if (fs.existsSync(path.join(workDir, testFile))) {
-      return { filePath: testFile, lineNumber: 1 };
-    }
-  }
-
-  // Strategy 2: scan stack frames for (.js|.ts) references that are NOT node_modules
+  // Strategy 1: scan stack frames for (.js|.ts) references that are NOT node_modules
   // e.g.: "at Object.<anonymous> (math.js:3:10)"
   const frameRegex = /at\s+\S+\s+\(([^)]+\.(?:js|ts|jsx|tsx)):(\d+):\d+\)/g;
   let match: RegExpExecArray | null;
@@ -158,6 +149,22 @@ function parseFailingFile(
     const absPath = path.join(workDir, rel);
     if (fs.existsSync(absPath)) {
       return { filePath: rel.replace(/\\/g, '/'), lineNumber: parseInt(lineStr, 10) };
+    }
+  }
+
+  // Strategy 2: find explicit "FAIL <file>" lines Jest prints at the top
+  // e.g.: "FAIL ./math.test.js (8.063 s)"
+  const failLineMatch = output.match(/^FAIL\s+(\S+\.(?:js|ts|jsx|tsx))(?:\s+\(.*?\))?$/m);
+  if (failLineMatch) {
+    const testFile = failLineMatch[1];
+    // Derive the corresponding source file (e.g., math.test.js -> math.js)
+    const sourceFile = testFile.replace(/\.test\.(js|ts|jsx|tsx)$/, '.$1');
+    if (fs.existsSync(path.join(workDir, sourceFile))) {
+      return { filePath: sourceFile, lineNumber: 1 };
+    }
+    // The test file IS the relevant context if source isn't found
+    if (fs.existsSync(path.join(workDir, testFile))) {
+      return { filePath: testFile, lineNumber: 1 };
     }
   }
 
@@ -239,7 +246,7 @@ export async function executeHealingLoop(jobId: string, event: NormalizedPREvent
         const absFailingFile = path.join(workDir, failingFilePath);
         const rawCode = fs.readFileSync(absFailingFile, 'utf8');
         // Use AST pruner to extract the narrowest enclosing block around the error
-        fileContext = extractEnclosingBlock(rawCode, parsed.lineNumber);
+        fileContext = extractEnclosingBlock(rawCode, parsed.lineNumber, absFailingFile);
         console.log(`[ORCHESTRATOR] Failing file identified: ${failingFilePath} (line ${parsed.lineNumber})`);
         console.log(`[ORCHESTRATOR] AST-pruned context (${fileContext.length} chars):`);
         console.log(fileContext);
@@ -265,6 +272,15 @@ export async function executeHealingLoop(jobId: string, event: NormalizedPREvent
       
       console.log(`[ORCHESTRATOR] Agent 2 suggests patching: ${repairResult.filePath} (confidence=${repairResult.confidenceScore})`);
       console.log(`[ORCHESTRATOR] Root cause: ${repairResult.rootCauseAnalysis}`);
+
+      if (!isPatchSafe(repairResult.filePath)) {
+        console.error(`[ORCHESTRATOR] Unsafe patch rejected: AI attempted to modify a test file (${repairResult.filePath}). AI must fix the source code, not the tests.`);
+        console.log(`[ORCHESTRATOR] Verification failed on attempt ${attempt}.`);
+        if (attempt === MAX_RETRIES) {
+          throw new Error(`Maximum retries (${MAX_RETRIES}) reached. Escalating to human intervention.`);
+        }
+        continue;
+      }
 
       console.log(`[ORCHESTRATOR] [STATE: DIAGNOSING -> VERIFYING] job=${jobId}`);
       await prisma.healJob.update({ 

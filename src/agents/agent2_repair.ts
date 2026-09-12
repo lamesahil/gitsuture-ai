@@ -77,7 +77,8 @@ Instructions:
 1. Analyze the stack trace to determine the root cause of the failure.
 2. Formulate a fix that targets ONLY the root cause.
 3. Generate a strict Unified Git Diff patch that applies cleanly to the provided source code.
-4. Output your response EXACTLY matching the requested JSON schema. Do NOT include markdown blocks (\`\`\`json) outside the JSON output.
+4. CRITICAL: Never modify test files or test assertions (for example expect(...), test(), it(), describe()). Do not change tests to make them pass. Fix the underlying production/source-code bug instead.
+5. Output your response EXACTLY matching the requested JSON schema. Do NOT include markdown blocks (\`\`\`json) outside the JSON output.
 `;
 
   console.log(`[AGENT2] Requesting repair for ${failingFilePath}...`);

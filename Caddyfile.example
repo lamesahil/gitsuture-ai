@@ -4,7 +4,8 @@
 
 your-domain.com {
     # 1. Serve the static frontend built by Vite
-    root * /opt/gitsuture/frontend/dist
+    # IMPORTANT: Replace /path/to/gitsuture with your actual deployment path
+    root * /path/to/gitsuture/frontend/dist
     file_server
     try_files {path} /index.html
 
