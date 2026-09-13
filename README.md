@@ -33,7 +33,7 @@ GitSuture automates this exact workflow, executing it locally and autonomously.
 * Executes `npm test` safely on the cloned repository.
 * Runs strictly inside an isolated Docker container.
 * Captures and multiplexes `stdout` and `stderr` streams.
-* Enforces strict resource limits (512MB RAM, 1 CPU Core) and a 45-second timeout.
+* Enforces strict resource limits (1 GiB RAM, 1 CPU Core) and a 45-second timeout.
 * Network access is entirely disabled during execution to prevent malicious code behavior.
 
 ### Agent 2 — Diagnosis & Repair (The Brain)
@@ -215,11 +215,11 @@ cd ..
 
 ## 🚀 Production Deployment (VM)
 
-GitSuture requires a **bare-metal Virtual Machine** (e.g., Ubuntu on DigitalOcean, AWS EC2, or Hetzner). Standard PaaS platforms (Vercel, Heroku) are incompatible because Agent 1 requires direct host access to the Docker daemon (`/var/run/docker.sock`) to spawn isolated sandboxes.
+GitSuture requires a **Virtual Machine or host with access to the Docker daemon** (e.g., Ubuntu on Azure, DigitalOcean, AWS EC2, or Hetzner). Standard PaaS platforms (Vercel, Heroku) are incompatible because Agent 1 requires direct host access to the Docker daemon (`/var/run/docker.sock`) to spawn isolated sandboxes.
 
 **Architecture:**
 * Node.js / PM2 for the backend daemon.
-* Caddy Reverse Proxy for HTTPS and static file serving.
+* Caddy Reverse Proxy for API routing and static file serving.
 * SQLite (`dev.db`) on the VM disk for persistence.
 
 **Manual First-Time Setup on a Fresh Ubuntu VM:**
@@ -371,3 +371,4 @@ GitSuture is not an AI chatbot that suggests code snippets for you to copy and p
 ## 📄 License
 
 MIT License
+
