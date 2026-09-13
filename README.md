@@ -286,34 +286,38 @@ npm test
 
 ## 🎬 End-to-End Demo
 
-To see GitSuture in action without configuring a live GitHub App, we have provided a mock webhook script that targets a deliberately broken repository (`gitsuture-demo-target`).
+To see GitSuture in action, you can route a live GitHub Webhook from a test repository directly to your local backend using Cloudflare Tunnels (`cloudflared`).
 
 ### The Verified Flow
-When the webhook is triggered, you can observe the following strict progression in the logs and the UI:
+When the GitHub PR webhook (`pull_request.synchronize`) is triggered, you can observe the following strict progression in the logs and the UI:
 
-**BROKEN TEST** → **QUEUED** → **CLONING** → **TESTING** → **DIAGNOSING** → **REPAIRING/PATCHING** → **VERIFYING** → **RESOLVED/HEALED**
+**BROKEN TEST** → **QUEUED** → **CLONING** → **TESTING** → **DIAGNOSING** → **VERIFYING** → **HEALED**
 
-### The Live Example
-In our demo target, a function meant to calculate a sum was intentionally broken:
-```javascript
-// INTENTIONAL BUG: Returns a string concatenation instead of numeric sum
-return a + "" + b;
+### The Live Example (Cross-File Bug)
+In our verified E2E run on `lamesahil/gitsuture-demo-crossfile`, a function used across multiple files (`applyDiscount` in `discountHelper.ts`) was intentionally broken:
+```typescript
+export function applyDiscount(total: number, percentage: number): number {
+  // BUG: Accidentally adds the percentage as a flat value instead of calculating and subtracting it.
+  return total + percentage;
+}
 ```
 
-During the flow:
-1. **Agent 1** runs tests in Docker and captures the failure.
-2. **Agent 2** diagnoses the exact line using AST extraction and generates the fix: `return a + b;`.
-3. **Agent 3** applies the patch to the isolated clone and triggers Agent 1 again.
-4. **Agent 1** confirms the tests pass. The commit is pushed, and the job is **HEALED**.
+During the live flow:
+1. **Agent 1** runs tests inside a secure Docker sandbox and captures the failure in `cart.test.ts`.
+2. **AST Context Extraction** successfully walks the dependency graph from the failing test (`cart.test.ts`) → `cartService.ts` → `discountHelper.ts`.
+3. **Agent 2 (Gemini)** diagnoses the root cause and generates a unified diff repair with 100% confidence: `return total - (total * percentage / 100);`.
+4. **Agent 3** applies the patch to the isolated clone. Agent 1 spins up a fresh Docker sandbox to verify the test suite now passes (`exitCode=0`).
+5. **GitHub Update:** The verified commit is automatically pushed to the GitHub PR branch, and a diagnostic markdown comment containing the root cause analysis and diff is posted directly to the PR.
 
-### Try It Locally
+### Try It Locally (Real Webhook)
 1. Ensure both the Backend and Frontend are running.
-2. Ensure you have the `gitsuture-demo-target` repository cloned as a sibling directory (`../gitsuture-demo-target`).
-3. Open a third terminal in the root directory and run:
+2. Expose your local backend via a secure tunnel:
    ```bash
-   npm run mock:webhook
+   cloudflared tunnel --url http://localhost:3001
    ```
-4. Look at your Dashboard (http://localhost:5173). You will see the webhook intercepted, the job queued, and the agents executing the healing loop in real-time.
+3. In a GitHub repository (e.g., a fork of `gitsuture-demo-crossfile`), configure a Webhook pointing to your `cloudflared` URL (`https://<your-tunnel>.trycloudflare.com/api/webhooks/github`) with the content type `application/json` and your `GITHUB_WEBHOOK_SECRET`.
+4. Open a PR with a failing test on your repository.
+5. Watch your Dashboard (http://localhost:5173). You will see the webhook intercepted and the agents executing the full cross-file healing loop in real-time.
 
 ## 📸 Screenshots
 
@@ -327,17 +331,17 @@ During the flow:
 
 ### Dashboard — Live HEALED Run
 
-![GitSuture dashboard showing a single intercepted PR (local/demo-target#1) with a green HEALED badge and the full 6-step timeline: Intercepted › Cloning › Testing › Diagnosing › Verifying › Healed](docs/screenshots/dashboard_healed.png)
+![GitSuture dashboard showing a single intercepted PR (lamesahil/gitsuture-demo-crossfile#1) with a green HEALED badge and the full timeline: Intercepted › Cloning › Testing › Diagnosing › Verifying › Healed](docs/screenshots/dashboard_healed.png)
 
-*A genuine, single-job clean state captured from the live E2E run. The sidebar shows **1 job**, the status badge reads **HEALED**, and every breadcrumb node in the timeline is lit — confirming the full `QUEUED → CLONING → TESTING → DIAGNOSING → VERIFYING → RESOLVED` state machine executed successfully.*
+*A genuine, clean state captured from the live E2E run. The sidebar shows the intercepted PR on `lamesahil/gitsuture-demo-crossfile`, the status badge reads **HEALED**, and every breadcrumb node in the timeline is lit — confirming the full `QUEUED → CLONING → TESTING → DIAGNOSING → VERIFYING → RESOLVED` state machine executed successfully.*
 
 ---
 
 ### Diagnostic Split-View — Agent 1 stderr · Agent 2 Patch · Agent 3 Verified
 
-![GitSuture diagnostic split-view showing the Jest failure output on the left (Expected: 15 / Received: "105") and the Gemini-generated unified diff on the right with a red "return a + "" + b" removed and green "return a + b" added, stamped Agent 3 · Verified](docs/screenshots/diagnostic_diff.png)
+![GitSuture diagnostic split-view showing the Jest failure output on the left and the Gemini-generated unified diff on the right fixing the cross-file discount bug, stamped Agent 3 · Verified](docs/screenshots/diagnostic_diff.png)
 
-*Left pane: **Agent 1 (Docker Sandbox)** captures the raw Jest failure — `Expected: 15 / Received: "105"` — proving the string-concatenation bug. Right pane: **Agent 2 (Gemini)** generates the one-line unified diff (`- return a + "" + b` → `+ return a + b`), stamped **Agent 3 · Verified** after the second Docker sandbox run confirmed `exitCode=0`.*
+*Left pane: **Agent 1 (Docker Sandbox)** captures the raw Jest test failure from `cart.test.ts`. Right pane: **Agent 2 (Gemini)** utilizes AST extraction to generate the correct unified diff for `discountHelper.ts` (`- return total + percentage;` → `+ return total - (total * percentage / 100);`), stamped **Agent 3 · Verified** after the second Docker sandbox run confirmed `exitCode=0`.*
 
 ## 🧩 Design Philosophy
 
