@@ -173,7 +173,7 @@ export async function runTestsInSandbox(
     const path = await import('path');
     
     console.log(`[AGENT1] Installing dependencies on host for ${localRepoPath}...`);
-    execSync('npm install --ignore-scripts --no-audit --no-fund', { 
+    execSync('npm install --include=dev --ignore-scripts --no-audit --no-fund', {
       cwd: localRepoPath, 
       stdio: 'ignore' 
     });
