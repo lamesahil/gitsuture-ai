@@ -9,6 +9,7 @@ import SecuritySection from './components/SecuritySection'
 import CTASection from './components/CTASection'
 import Footer from './components/Footer'
 import Dashboard from './components/Dashboard'
+import Scene from './components/Scene'
 
 export default function App() {
   const timelineRef = useRef<HealingTimelineRef | null>(null)
@@ -24,7 +25,8 @@ export default function App() {
   }
 
   return (
-    <div style={{ background: '#080f17', minHeight: '100svh' }}>
+    <div style={{ background: 'transparent', minHeight: '100svh' }} className="relative">
+      <Scene />
       <Navbar currentView={currentView} setCurrentView={setCurrentView} />
 
       {/* Push content below fixed navbar */}
