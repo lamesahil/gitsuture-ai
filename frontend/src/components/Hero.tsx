@@ -1,9 +1,7 @@
 import { Fragment } from 'react'
 import { GitHubIcon } from './icons'
 
-interface HeroProps {
-  onScrollToDemo: () => void
-}
+
 
 const TECH_PILLS = [
   { label: 'GitHub Webhooks', color: '#4cd7f6' },
@@ -12,7 +10,7 @@ const TECH_PILLS = [
   { label: 'Verified Patches', color: '#4edea3' },
 ]
 
-export default function Hero({ onScrollToDemo }: HeroProps) {
+export default function Hero() {
   return (
     <section id="hero" className="relative w-full overflow-hidden">
       {/* Ambient background glows */}
@@ -106,11 +104,9 @@ export default function Hero({ onScrollToDemo }: HeroProps) {
           {/* CTA Group */}
           <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
             <a
-              href="#cta"
-              onClick={(e) => {
-                e.preventDefault()
-                document.querySelector('#cta')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-              }}
+              href="https://github.com/lamesahil/gitsuture-ai"
+              target="_blank"
+              rel="noopener noreferrer"
               className="inline-flex items-center gap-2 px-5 py-3 rounded font-medium transition-all shadow-md hover:brightness-110 active:scale-[0.98]"
               style={{
                 background: '#06b6d4',
@@ -122,11 +118,13 @@ export default function Hero({ onScrollToDemo }: HeroProps) {
               }}
             >
               <GitHubIcon className="w-4 h-4" />
-              <span>Install GitHub App</span>
+              <span>View GitHub Repository</span>
             </a>
-            <button
+            <a
               id="hero-scroll-btn"
-              onClick={onScrollToDemo}
+              href="https://youtu.be/y4r4y4IqN5A"
+              target="_blank"
+              rel="noopener noreferrer"
               className="inline-flex items-center gap-2 px-5 py-3 rounded font-medium transition-colors shadow-sm"
               style={{
                 background: '#232a34',
@@ -141,7 +139,7 @@ export default function Hero({ onScrollToDemo }: HeroProps) {
             >
               <PlayCircleIcon />
               <span>View Live Demo</span>
-            </button>
+            </a>
           </div>
 
           {/* Technical trust line */}

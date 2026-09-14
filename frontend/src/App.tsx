@@ -33,7 +33,7 @@ export default function App() {
       <main style={{ paddingTop: '64px' }}>
         {currentView === 'landing' ? (
           <>
-            <Hero onScrollToDemo={scrollToDemo} />
+            <Hero />
             <HealingTimeline timelineRef={timelineRef} />
             <HowItWorks />
             <Differentiators />

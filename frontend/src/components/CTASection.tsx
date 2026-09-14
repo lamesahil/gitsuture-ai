@@ -88,7 +88,9 @@ export default function CTASection({ onScrollToDemo }: CTAProps) {
           {/* CTA buttons */}
           <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
             <a
-              href="#"
+              href="https://github.com/lamesahil/gitsuture-ai"
+              target="_blank"
+              rel="noopener noreferrer"
               className="inline-flex items-center gap-2 px-5 py-3 rounded font-medium transition-all shadow-md hover:brightness-110 active:scale-[0.98]"
               style={{
                 background: '#06b6d4',
@@ -100,7 +102,7 @@ export default function CTASection({ onScrollToDemo }: CTAProps) {
               }}
             >
               <GitHubIcon className="w-4 h-4" />
-              <span>Install GitHub App</span>
+              <span>View GitHub Repository</span>
             </a>
             <button
               id="cta-scroll-demo"
