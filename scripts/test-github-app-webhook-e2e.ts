@@ -41,15 +41,15 @@ async function run() {
 
   try {
     section('1. Setup Remote Test Branch with Intentional Bug');
-    log(`Fetching main branch SHA for ${testRepo}...`);
+    log(`Fetching base branch SHA for ${testRepo}...`);
     const { data: refData } = await octokit.rest.git.getRef({
       owner,
       repo,
-      ref: 'heads/main',
+      ref: 'heads/feature/fix-discount',
     });
     const mainSha = refData.object.sha;
 
-    log(`Creating test branch ${branchName} from main...`);
+    log(`Creating test branch ${branchName} from feature/fix-discount...`);
     await octokit.rest.git.createRef({
       owner,
       repo,
