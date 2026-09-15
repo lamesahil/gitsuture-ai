@@ -11,7 +11,8 @@
     "typecheck": "tsc --project tsconfig.json --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
-    "mock:webhook": "tsx scripts/trigger-mock-webhook.ts"
+    "mock:webhook": "tsx scripts/trigger-mock-webhook.ts",
+    "test:app-auth": "tsx scripts/test-github-app-auth.ts"
   },
   "dependencies": {
     "@babel/parser": "^8.0.4",

@@ -11,6 +11,9 @@ dist/
 .env.local
 .env.*.local
 
+# GitHub App private key — MUST NOT be committed under any circumstances
+*.pem
+
 # Logs
 *.log
 npm-debug.log*
