@@ -132,6 +132,7 @@ if (!preflight) {
   process.exit(1);
 }
 
+async function run() {
 // ── Test 1: App JWT generation (implicit via @octokit/auth-app) ───────────────
 
 section('Test 1: GitHub App Authentication (JWT)');
@@ -223,15 +224,31 @@ try {
     pass(`Clone URL present: ${response.data.clone_url}`);
   }
 
-  // Check if we have the permissions we need
-  if (response.data.permissions) {
-    const p = response.data.permissions;
-    info(`Repository permissions for this installation:`);
-    info(`  - pull (read):  ${p.pull  ? '✓' : '✗'}`);
-    info(`  - push (write): ${p.push  ? '✓' : '✗'}`);
-    info(`  - admin:        ${p.admin ? '✓' : '✗'}`);
-    if (!p.pull)  fail(`Installation does not have read access — check App permissions`);
-    if (!p.push)  fail(`Installation does not have write access — Contents must be Read & Write`);
+  // Fetch the installation permissions directly using the App JWT.
+  // We do not rely on response.data.permissions (the repo permissions object)
+  // because GitHub's API frequently returns false for push/pull when authenticated
+  // as an App token, even when the App explicitly has contents: write.
+  const appAuth = createAppAuth({ appId, privateKey: privateKey!, installationId });
+  const appOctokit = new Octokit({ auth: (await appAuth({ type: 'app' })).token });
+  const { data: installation } = await appOctokit.rest.apps.getInstallation({
+    installation_id: installationId,
+  });
+
+  
+  info(`Installation permissions verified via API:`);
+  info(`  - contents:      ${installation.permissions?.contents || 'none'}`);
+  info(`  - pull_requests: ${installation.permissions?.pull_requests || 'none'}`);
+
+  if (installation.permissions?.contents !== 'write') {
+    fail(`Installation lacks 'contents: write' permission.`);
+  } else {
+    pass(`Installation has 'contents: write' permission ✓`);
+  }
+
+  if (installation.permissions?.pull_requests !== 'write') {
+    fail(`Installation lacks 'pull_requests: write' permission.`);
+  } else {
+    pass(`Installation has 'pull_requests: write' permission ✓`);
   }
 
 } catch (err) {
@@ -271,3 +288,9 @@ console.log(`
     Day 5-6: Verify clone + push + PR comment via installation token
     Day 7:   End-to-end healing loop with App authentication
 `);
+}
+
+run().catch((err) => {
+  console.error('Fatal test error:', err);
+  process.exit(1);
+});
