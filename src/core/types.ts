@@ -38,6 +38,14 @@ export interface NormalizedPREvent {
 
   /** ISO 8601 timestamp of when this event was received by the server. */
   receivedAt: string;
+
+  /**
+   * GitHub App installation ID from the webhook payload (`installation.id`).
+   * Present only when the webhook was delivered by a GitHub App installation.
+   * Undefined when the event originates from a PAT-based webhook setup.
+   * Used by the GitHub operations layer to select authentication mode.
+   */
+  installationId?: number;
 }
 
 // ── Job ───────────────────────────────────────────────────────────────────────

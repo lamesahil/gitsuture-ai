@@ -118,6 +118,14 @@ interface GitHubPullRequestPayload {
   sender?: {
     login?: string;
   };
+  /**
+   * Present only in GitHub App webhook payloads.
+   * Contains the installation ID needed to obtain an installation access token.
+   * Absent from PAT-based webhooks — handled gracefully as undefined.
+   */
+  installation?: {
+    id: number;
+  };
 }
 
 /**
@@ -144,6 +152,13 @@ function normalizePullRequestPayload(
   if (!headSha) throw new Error('Missing pull_request.head.sha in payload');
   if (!sender) throw new Error('Missing sender.login in payload');
 
+  // installationId is optional — present only for GitHub App webhook deliveries.
+  // PAT-based webhooks will not have this field; the value is safely undefined.
+  const installationId = payload.installation?.id;
+  if (installationId !== undefined) {
+    console.log(`[WEBHOOK] GitHub App installation detected. installationId=${installationId}`);
+  }
+
   return {
     action,
     repoFullName,
@@ -153,5 +168,6 @@ function normalizePullRequestPayload(
     headSha,
     sender,
     receivedAt: new Date().toISOString(),
+    installationId,
   };
 }

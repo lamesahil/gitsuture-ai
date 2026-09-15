@@ -17,6 +17,7 @@
     "@babel/parser": "^8.0.4",
     "@babel/traverse": "^8.0.4",
     "@google/genai": "^2.21.0",
+    "@octokit/auth-app": "^8.3.1",
     "@octokit/rest": "^22.0.1",
     "@prisma/client": "5.22.0",
     "cors": "^2.8.6",

@@ -202,7 +202,7 @@ export async function executeHealingLoop(jobId: string, event: NormalizedPREvent
     await prisma.healJob.update({ where: { id: jobId }, data: { status: 'CLONING' } });
     
     // Clone repo
-    await cloneRepository(event.cloneUrl, event.headBranch, workDir);
+    await cloneRepository(event.cloneUrl, event.headBranch, workDir, event.installationId);
 
     console.log(`[ORCHESTRATOR] [STATE: CLONING -> TESTING] job=${jobId}`);
     await prisma.healJob.update({ where: { id: jobId }, data: { status: 'TESTING' } });
@@ -297,10 +297,10 @@ export async function executeHealingLoop(jobId: string, event: NormalizedPREvent
       if (verificationResult.status === 'VERIFIED') {
         console.log(`[ORCHESTRATOR] Patch verified. Committing changes...`);
         
-        await pushSignedCommit(workDir, `fix: AI auto-repair by GitSuture\n\nRoot cause: ${repairResult.rootCauseAnalysis}`);
+        await pushSignedCommit(workDir, `fix: AI auto-repair by GitSuture\n\nRoot cause: ${repairResult.rootCauseAnalysis}`, event.installationId);
         
         const comment = `### 🩺 GitSuture Auto-Repair\n\n**Root Cause:** ${repairResult.rootCauseAnalysis}\n**Confidence:** ${(repairResult.confidenceScore * 100).toFixed(0)}%\n\n\`\`\`diff\n${repairResult.unifiedDiff}\n\`\`\``;
-        await postDiagnosticComment(event.repoFullName, event.prNumber, comment);
+        await postDiagnosticComment(event.repoFullName, event.prNumber, comment, event.installationId);
 
         console.log(`[ORCHESTRATOR] [STATE: VERIFYING -> HEALED] job=${jobId}`);
         await prisma.healJob.update({ where: { id: jobId }, data: { status: 'RESOLVED' } });
