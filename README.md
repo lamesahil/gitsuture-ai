@@ -48,7 +48,7 @@ GitSuture automates this exact workflow, executing it locally and autonomously.
 * Executes `npm test` safely on the cloned repository.
 * Runs strictly inside an isolated Docker container.
 * Captures and multiplexes `stdout` and `stderr` streams.
-* Enforces strict resource limits (1 GiB RAM, 1 CPU Core) and a 45-second timeout.
+* Enforces strict resource limits (1 GiB RAM, 1 CPU Core) and a 120-second timeout.
 * Network access is entirely disabled during execution to prevent malicious code behavior.
 
 ### Agent 2 — Diagnosis & Repair (The Brain)
@@ -187,7 +187,7 @@ GitSuture features a high-end 3D visual layer built with React Three Fiber and T
 ## 🛡️ Safety & Reliability
 
 GitSuture is designed with paranoia at its core:
-* **Docker Sandboxing:** Untrusted code runs in a highly restricted container (`NetworkDisabled: true`, max 512MB RAM).
+* **Docker Sandboxing:** Untrusted code runs in a highly restricted container (`NetworkDisabled: true`, max 1 GiB RAM).
 * **AST Pruning:** By using Babel, we send minimal context to the LLM, reducing the surface area for AI hallucinations.
 * **Strict Verification:** No patch is pushed without passing `npm test` first.
 * **Guaranteed Rollback:** Failed patches trigger an immediate filesystem restoration.
