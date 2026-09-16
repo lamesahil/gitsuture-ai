@@ -93,9 +93,10 @@ GitSuture operates on a strict, observable state machine managed by the Orchestr
 
 ```text
 ┌────────────────────────────────────────────────────────────┐
-│                  GITHUB PULL REQUEST                       │
+│            GITHUB PULL REQUEST (App or PAT webhook)        │
 └─┬────────────────────────────────────────────────────────┬─┘
-  │ Webhook Payload                           Octokit Push │
+  │ Webhook Payload (HMAC-verified)           Octokit Push │
+  │ installation.id (App) or absent (PAT)                  │
   ▼                                                        │
 ┌──────────────────────────────────────────────────────────┴─┐
 │                    GITSUTURE CORE                          │
@@ -104,7 +105,14 @@ GitSuture operates on a strict, observable state machine managed by the Orchestr
 │  │ Express API    │ ──> │ Orchestrator (State Machine)  │  │
 │  │ (/api/webhooks)│     └─┬─────────────────────────────┘  │
 │  └────────────────┘       │                                │
-│                           ▼                                │
+│       ▲ Auth modes:       ▼                                │
+│  ┌────┴──────────────────────────────────────────────────┐ │
+│  │ GitHub Auth Layer (src/git/)                          │ │
+│  │   App:  installationId → @octokit/auth-app → token   │ │
+│  │   PAT:  GITHUB_TOKEN (fallback when no App ID)       │ │
+│  └────┬──────────────────────────────────────────────────┘ │
+│       │                                                    │
+│       ▼                                                    │
 │  ┌──────────────────────────────────────────────────────┐  │
 │  │              Agent 1 (Test Executor)                 │  │
 │  │ └─ Docker Sandbox (npm test, Exit Code, Stderr)      │  │
@@ -166,7 +174,7 @@ GitSuture is designed with paranoia at its core:
 | **AI / LLM** | Google Gemini API (gemini-2.5-flash), `@google/genai` SDK |
 | **Execution** | Docker, dockerode |
 | **Code Intelligence** | `@babel/parser`, `@babel/traverse` |
-| **GitHub Ops** | `@octokit/rest`, `simple-git` |
+| **GitHub Ops** | `@octokit/rest`, `@octokit/auth-app`, `simple-git` |
 | **Database** | Prisma, SQLite |
 | **Testing** | Vitest (Mock API/Sandbox/Agent isolation tests) |
 
@@ -259,9 +267,16 @@ GEMINI_API_KEY="your_gemini_api_key_here"
 # Database
 DATABASE_URL="file:./dev.db"
 
-# GitHub Ops (Required for webhook ingestion and pushing via PAT)
+# GitHub Ops (Required — PAT used for all git operations when App is not configured)
 GITHUB_WEBHOOK_SECRET="your_custom_secret_string"
 GITHUB_TOKEN="your_personal_access_token_here"
+
+# GitHub App (Optional — enables App installation token auth when all three are set)
+# When configured, the App installation token is used instead of the PAT for
+# clone, push, and PR comment operations. PAT (GITHUB_TOKEN) remains the fallback.
+# GITHUB_APP_ID="123456"
+# GITHUB_APP_PRIVATE_KEY_PATH="/path/to/your-app.pem"
+# GITHUB_APP_PRIVATE_KEY="-----BEGIN RSA PRIVATE KEY-----\n...\n-----END RSA PRIVATE KEY-----"
 ```
 
 ## ▶️ Running Locally
@@ -367,7 +382,7 @@ GitSuture is built on the philosophy of **Verification over Blind Automation**. 
 
 * **Local-First MVP:** Currently configured to clone and run in a local environment for demonstration purposes. Full cloud/CI integration requires provisioning isolated runner instances.
 * **Ecosystem Support:** Agent 1 currently defaults to Node.js / `npm test`. Supporting Python, Go, or Rust requires expanding the Dockerfile configurations.
-* **GitHub App Integration:** The current implementation uses GitHub Webhooks and token-based authentication for repository operations. A dedicated GitHub App integration is planned as a future improvement to provide more granular repository permissions and a streamlined installation experience.
+* **Production Webhook URL:** The GitHub App integration is implemented and locally verified end-to-end. Exposing a production HTTPS endpoint for the GitHub App webhook (e.g., via Azure VM + Caddy, or a long-lived tunnel) is a deployment/setup step that remains pending. Local testing uses a signed HMAC webhook delivered via `cloudflared`.
 
 ## 🔮 Future Improvements
 

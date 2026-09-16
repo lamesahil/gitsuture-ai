@@ -1,21 +1,27 @@
 /**
  * src/core/orchestrator.ts
  *
- * Phase 1 Orchestrator Stub.
+ * Orchestrator — 3-Agent Healing Loop.
  *
- * Receives normalized pull_request events and issues healing job
- * acknowledgements. Does NOT execute agents yet.
+ * Receives normalized pull_request events, creates a HealJob record in
+ * SQLite, and asynchronously drives the full healing state machine:
  *
- * Architecture:
  *   handlePullRequestEvent(event)
- *     → creates a QUEUED job
- *     → logs that a healing job would be started
- *     → returns a structured JobAck
+ *     → upserts PullRequest + creates QUEUED HealJob
+ *     → returns a JobAck (immediately, before healing starts)
  *
- * Phase 2 extension point:
- *   Replace the TODO comment below with:
- *     await agent1Tester.run(job, event);
- *   The JobAck interface and job queue interface remain stable.
+ *   executeHealingLoop(jobId, event)  [runs asynchronously post-ack]
+ *     → CLONING   : cloneRepository (PAT or App installation token)
+ *     → TESTING   : Agent 1 (Docker sandbox npm test)
+ *     → DIAGNOSING: Agent 2 (AST pruner + Gemini structured diff)
+ *     → VERIFYING : Agent 3 (apply patch, re-run Docker sandbox)
+ *     → commit + push + postDiagnosticComment on VERIFIED
+ *     → RESOLVED  : job state updated, workDir cleaned up
+ *
+ * Authentication:
+ *   When event.installationId is present (GitHub App webhook), all git
+ *   and API operations use a short-lived installation token.
+ *   When installationId is absent, the PAT (GITHUB_TOKEN) is used.
  */
 
 import * as fs from 'fs';
@@ -211,7 +217,7 @@ export async function executeHealingLoop(jobId: string, event: NormalizedPREvent
     const initialTestResult = await runTestsInSandbox(workDir);
 
     if (initialTestResult.exitCode === 0) {
-      console.log(`[ORCHESTRATOR] [STATE: TESTING -> RESOLVED] Initial tests passed. job=${jobId}`);
+      console.log(`[ORCHESTRATOR] [STATE: TESTING -> RESOLVED] Initial tests passed. No healing required. job=${jobId}`);
       await prisma.healJob.update({ where: { id: jobId }, data: { status: 'RESOLVED' } });
       return;
     }
