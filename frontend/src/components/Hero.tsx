@@ -104,7 +104,7 @@ export default function Hero() {
           {/* CTA Group */}
           <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
             <a
-              href="https://github.com/lamesahil/gitsuture-ai"
+              href="https://github.com/apps/gitsuture/installations/new"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 px-5 py-3 rounded font-medium transition-all shadow-md hover:brightness-110 active:scale-[0.98]"
@@ -116,6 +116,26 @@ export default function Hero() {
                 lineHeight: '22px',
                 letterSpacing: '-0.01em',
               }}
+            >
+              <GitHubIcon className="w-4 h-4" />
+              <span>Install GitHub App</span>
+            </a>
+            <a
+              href="https://github.com/lamesahil/gitsuture-ai"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-5 py-3 rounded font-medium transition-colors shadow-sm"
+              style={{
+                background: '#232a34',
+                color: '#dce3f0',
+                fontFamily: 'Inter, sans-serif',
+                fontSize: '15px',
+                lineHeight: '22px',
+                letterSpacing: '-0.01em',
+                border: '1px solid #3d494c',
+              }}
+              onMouseEnter={(e) => (e.currentTarget.style.color = '#4cd7f6')}
+              onMouseLeave={(e) => (e.currentTarget.style.color = '#dce3f0')}
             >
               <GitHubIcon className="w-4 h-4" />
               <span>View GitHub Repository</span>

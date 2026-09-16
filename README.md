@@ -20,7 +20,7 @@ Crucially, GitSuture **does not blindly trust AI.** Every generated patch must b
 
 Watch the GitSuture end-to-end demonstration:
 
-https://youtu.be/y4r4y4IqN5A
+[Final YouTube URL pending]
 
 The demo showcases the real GitHub PR self-healing workflow, including:
 - GitHub PR / webhook trigger
@@ -89,7 +89,36 @@ GitSuture operates on a strict, observable state machine managed by the Orchestr
 
 **Maximum Retry Limit:** The verification loop is strictly bounded. If Agent 3 fails to verify a patch after 3 attempts, the job is marked as FAILED/ESCALATED to prevent infinite hallucination loops.
 
+
+## 📦 GitHub App Installation
+
+Installing the GitSuture GitHub App connects your repositories to the healing engine.
+
+**Installation Flow:**
+1. User clicks **Install GitHub App**.
+2. GitHub asks which account or organization to install on.
+3. User chooses **All repositories** or **selected repositories**.
+4. GitSuture starts receiving `pull_request` webhooks.
+5. GitSuture uses GitHub App installation tokens for authenticating clones and commits.
+6. **No Personal Access Token (PAT) is required** for the GitHub App healing path.
+
+**Required Permissions:**
+GitSuture operates with the principle of least privilege.
+* **Contents:** Read & Write (To clone the repository and push the verified patch)
+* **Pull requests:** Read & Write (To post diagnostic comments)
+* **Metadata:** Read-only (Mandatory for all apps)
+* **Events:** `pull_request` webhook
+
+> [!IMPORTANT]
+> **Hosting Distinction**
+> Installing the GitHub App on your repository grants GitSuture permission to monitor and push to it, but **it does not host or start the GitSuture backend**. You must still run the GitSuture backend server (or use a managed deployment) to actually receive the webhooks and execute the Docker sandboxes.
+
 ## 🏗️ Architecture
+
+**Workflow:**
+GitHub PR → GitHub App webhook → HMAC validation → installation ID → installation access token → clone → Agent 1 test execution → AST context extraction → Agent 2 Gemini diagnosis + unified diff → Docker sandbox verification → Agent 3 → commit + push → PR diagnostic comment
+
+
 
 ```text
 ┌────────────────────────────────────────────────────────────┐
@@ -378,11 +407,14 @@ During the live flow, the relevant code path crosses `cart.test.ts` → `cartSer
 
 GitSuture is built on the philosophy of **Verification over Blind Automation**. LLMs are probabilistic; software engineering requires determinism. By wrapping a generative model (Gemini) inside a deterministic execution sandbox (Docker + AST), we harness the reasoning capabilities of AI while strictly bounding its ability to hallucinate or break working systems.
 
-## 🚧 Current Limitations
+## 🚧 Known Constraints & Failure Modes
 
-* **Local-First MVP:** Currently configured to clone and run in a local environment for demonstration purposes. Full cloud/CI integration requires provisioning isolated runner instances.
-* **Ecosystem Support:** Agent 1 currently defaults to Node.js / `npm test`. Supporting Python, Go, or Rust requires expanding the Dockerfile configurations.
-* **Production Webhook URL:** The GitHub App integration is implemented and locally verified end-to-end. Exposing a production HTTPS endpoint for the GitHub App webhook (e.g., via Azure VM + Caddy, or a long-lived tunnel) is a deployment/setup step that remains pending. Local testing uses a signed HMAC webhook delivered via `cloudflared`.
+* **Language Support:** Currently optimized for JavaScript/TypeScript + Jest.
+* **AST Extraction Limits:** Highly dynamic or complex JavaScript patterns (e.g., heavy metaprogramming) can reduce AST context extraction quality.
+* **Concurrency:** The current worker architecture runs on a single host. Production-scale concurrent webhook processing would benefit from stronger queue and job isolation (e.g., BullMQ + Kubernetes).
+* **Dependencies:** Docker is strictly required for sandbox verification.
+* **Network Constraints:** A public HTTPS backend is required to receive GitHub webhooks.
+
 
 ## 🔮 Future Improvements
 
