@@ -39,6 +39,28 @@ export const env = {
    */
   GITHUB_TOKEN: requireEnv('GITHUB_TOKEN'),
 
+  // ── GitHub App (optional — PAT remains the fallback when these are absent) ───
+
+  /**
+   * GitHub App numeric ID shown on the App settings page.
+   * Example: 123456
+   */
+  GITHUB_APP_ID: optionalEnv('GITHUB_APP_ID', ''),
+
+  /**
+   * Path to the GitHub App private key PEM file on disk.
+   * Takes priority over GITHUB_APP_PRIVATE_KEY if both are set.
+   * Example: /etc/gitsuture/private-key.pem
+   */
+  GITHUB_APP_PRIVATE_KEY_PATH: optionalEnv('GITHUB_APP_PRIVATE_KEY_PATH', ''),
+
+  /**
+   * GitHub App private key PEM content as a raw string (newlines escaped as \n).
+   * Used as fallback when GITHUB_APP_PRIVATE_KEY_PATH is not set.
+   * Never commit real key material — store only in .env or a secrets manager.
+   */
+  GITHUB_APP_PRIVATE_KEY: optionalEnv('GITHUB_APP_PRIVATE_KEY', ''),
+
   /**
    * Gemini API Key for Agent 2 (Diagnosis & Repair).
    * Required in production; must be set before starting the server.

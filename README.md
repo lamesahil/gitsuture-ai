@@ -20,7 +20,7 @@ Crucially, GitSuture **does not blindly trust AI.** Every generated patch must b
 
 Watch the GitSuture end-to-end demonstration:
 
-https://youtu.be/y4r4y4IqN5A
+[Final YouTube URL pending]
 
 The demo showcases the real GitHub PR self-healing workflow, including:
 - GitHub PR / webhook trigger
@@ -48,7 +48,7 @@ GitSuture automates this exact workflow, executing it locally and autonomously.
 * Executes `npm test` safely on the cloned repository.
 * Runs strictly inside an isolated Docker container.
 * Captures and multiplexes `stdout` and `stderr` streams.
-* Enforces strict resource limits (1 GiB RAM, 1 CPU Core) and a 45-second timeout.
+* Enforces strict resource limits (1 GiB RAM, 1 CPU Core) and a 120-second timeout.
 * Network access is entirely disabled during execution to prevent malicious code behavior.
 
 ### Agent 2 — Diagnosis & Repair (The Brain)
@@ -89,13 +89,43 @@ GitSuture operates on a strict, observable state machine managed by the Orchestr
 
 **Maximum Retry Limit:** The verification loop is strictly bounded. If Agent 3 fails to verify a patch after 3 attempts, the job is marked as FAILED/ESCALATED to prevent infinite hallucination loops.
 
+
+## 📦 GitHub App Installation
+
+Installing the GitSuture GitHub App connects your repositories to the healing engine.
+
+**Installation Flow:**
+1. User clicks **Install GitHub App**.
+2. GitHub asks which account or organization to install on.
+3. User chooses **All repositories** or **selected repositories**.
+4. GitSuture starts receiving `pull_request` webhooks.
+5. GitSuture uses GitHub App installation tokens for authenticating clones and commits.
+6. **No Personal Access Token (PAT) is required** for the GitHub App healing path.
+
+**Required Permissions:**
+GitSuture operates with the principle of least privilege.
+* **Contents:** Read & Write (To clone the repository and push the verified patch)
+* **Pull requests:** Read & Write (To post diagnostic comments)
+* **Metadata:** Read-only (Mandatory for all apps)
+* **Events:** `pull_request` webhook
+
+> [!IMPORTANT]
+> **Hosting Distinction**
+> Installing the GitHub App on your repository grants GitSuture permission to monitor and push to it, but **it does not host or start the GitSuture backend**. You must still run the GitSuture backend server (or use a managed deployment) to actually receive the webhooks and execute the Docker sandboxes.
+
 ## 🏗️ Architecture
+
+**Workflow:**
+GitHub PR → GitHub App webhook → HMAC validation → installation ID → installation access token → clone → Agent 1 test execution → AST context extraction → Agent 2 Gemini diagnosis + unified diff → Docker sandbox verification → Agent 3 → commit + push → PR diagnostic comment
+
+
 
 ```text
 ┌────────────────────────────────────────────────────────────┐
-│                  GITHUB PULL REQUEST                       │
+│            GITHUB PULL REQUEST (App or PAT webhook)        │
 └─┬────────────────────────────────────────────────────────┬─┘
-  │ Webhook Payload                           Octokit Push │
+  │ Webhook Payload (HMAC-verified)           Octokit Push │
+  │ installation.id (App) or absent (PAT)                  │
   ▼                                                        │
 ┌──────────────────────────────────────────────────────────┴─┐
 │                    GITSUTURE CORE                          │
@@ -104,7 +134,14 @@ GitSuture operates on a strict, observable state machine managed by the Orchestr
 │  │ Express API    │ ──> │ Orchestrator (State Machine)  │  │
 │  │ (/api/webhooks)│     └─┬─────────────────────────────┘  │
 │  └────────────────┘       │                                │
-│                           ▼                                │
+│       ▲ Auth modes:       ▼                                │
+│  ┌────┴──────────────────────────────────────────────────┐ │
+│  │ GitHub Auth Layer (src/git/)                          │ │
+│  │   App:  installationId → @octokit/auth-app → token   │ │
+│  │   PAT:  GITHUB_TOKEN (fallback when no App ID)       │ │
+│  └────┬──────────────────────────────────────────────────┘ │
+│       │                                                    │
+│       ▼                                                    │
 │  ┌──────────────────────────────────────────────────────┐  │
 │  │              Agent 1 (Test Executor)                 │  │
 │  │ └─ Docker Sandbox (npm test, Exit Code, Stderr)      │  │
@@ -150,7 +187,7 @@ GitSuture features a high-end 3D visual layer built with React Three Fiber and T
 ## 🛡️ Safety & Reliability
 
 GitSuture is designed with paranoia at its core:
-* **Docker Sandboxing:** Untrusted code runs in a highly restricted container (`NetworkDisabled: true`, max 512MB RAM).
+* **Docker Sandboxing:** Untrusted code runs in a highly restricted container (`NetworkDisabled: true`, max 1 GiB RAM).
 * **AST Pruning:** By using Babel, we send minimal context to the LLM, reducing the surface area for AI hallucinations.
 * **Strict Verification:** No patch is pushed without passing `npm test` first.
 * **Guaranteed Rollback:** Failed patches trigger an immediate filesystem restoration.
@@ -166,7 +203,7 @@ GitSuture is designed with paranoia at its core:
 | **AI / LLM** | Google Gemini API (gemini-2.5-flash), `@google/genai` SDK |
 | **Execution** | Docker, dockerode |
 | **Code Intelligence** | `@babel/parser`, `@babel/traverse` |
-| **GitHub Ops** | `@octokit/rest`, `simple-git` |
+| **GitHub Ops** | `@octokit/rest`, `@octokit/auth-app`, `simple-git` |
 | **Database** | Prisma, SQLite |
 | **Testing** | Vitest (Mock API/Sandbox/Agent isolation tests) |
 
@@ -259,9 +296,16 @@ GEMINI_API_KEY="your_gemini_api_key_here"
 # Database
 DATABASE_URL="file:./dev.db"
 
-# GitHub Ops (Required for webhook ingestion and pushing via PAT)
+# GitHub Ops (Required — PAT used for all git operations when App is not configured)
 GITHUB_WEBHOOK_SECRET="your_custom_secret_string"
 GITHUB_TOKEN="your_personal_access_token_here"
+
+# GitHub App (Optional — enables App installation token auth when all three are set)
+# When configured, the App installation token is used instead of the PAT for
+# clone, push, and PR comment operations. PAT (GITHUB_TOKEN) remains the fallback.
+# GITHUB_APP_ID="123456"
+# GITHUB_APP_PRIVATE_KEY_PATH="/path/to/your-app.pem"
+# GITHUB_APP_PRIVATE_KEY="-----BEGIN RSA PRIVATE KEY-----\n...\n-----END RSA PRIVATE KEY-----"
 ```
 
 ## ▶️ Running Locally
@@ -363,11 +407,14 @@ During the live flow, the relevant code path crosses `cart.test.ts` → `cartSer
 
 GitSuture is built on the philosophy of **Verification over Blind Automation**. LLMs are probabilistic; software engineering requires determinism. By wrapping a generative model (Gemini) inside a deterministic execution sandbox (Docker + AST), we harness the reasoning capabilities of AI while strictly bounding its ability to hallucinate or break working systems.
 
-## 🚧 Current Limitations
+## 🚧 Known Constraints & Failure Modes
 
-* **Local-First MVP:** Currently configured to clone and run in a local environment for demonstration purposes. Full cloud/CI integration requires provisioning isolated runner instances.
-* **Ecosystem Support:** Agent 1 currently defaults to Node.js / `npm test`. Supporting Python, Go, or Rust requires expanding the Dockerfile configurations.
-* **GitHub App Integration:** The current implementation uses GitHub Webhooks and token-based authentication for repository operations. A dedicated GitHub App integration is planned as a future improvement to provide more granular repository permissions and a streamlined installation experience.
+* **Language Support:** Currently optimized for JavaScript/TypeScript + Jest.
+* **AST Extraction Limits:** Highly dynamic or complex JavaScript patterns (e.g., heavy metaprogramming) can reduce AST context extraction quality.
+* **Concurrency:** The current worker architecture runs on a single host. Production-scale concurrent webhook processing would benefit from stronger queue and job isolation (e.g., BullMQ + Kubernetes).
+* **Dependencies:** Docker is strictly required for sandbox verification.
+* **Network Constraints:** A public HTTPS backend is required to receive GitHub webhooks.
+
 
 ## 🔮 Future Improvements
 

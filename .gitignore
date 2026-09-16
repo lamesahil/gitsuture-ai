@@ -11,6 +11,9 @@ dist/
 .env.local
 .env.*.local
 
+# GitHub App private key — MUST NOT be committed under any circumstances
+*.pem
+
 # Logs
 *.log
 npm-debug.log*
@@ -33,3 +36,7 @@ scratch*.js
 # Test fixture generated artifacts
 tests/fixtures/*/package-lock.json
 tests/fixtures/*/node_modules/
+
+# Temporary E2E test demo directories (created during Day 5-7 testing, never commit)
+tmp-demo-check/
+tmp-*/

@@ -11,12 +11,16 @@
     "typecheck": "tsc --project tsconfig.json --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
-    "mock:webhook": "tsx scripts/trigger-mock-webhook.ts"
+    "mock:webhook": "tsx scripts/trigger-mock-webhook.ts",
+    "test:app-auth": "tsx scripts/test-github-app-auth.ts",
+    "test:app-e2e": "tsx scripts/test-github-app-git-e2e.ts",
+    "test:app-webhook-e2e": "tsx scripts/test-github-app-webhook-e2e.ts"
   },
   "dependencies": {
     "@babel/parser": "^8.0.4",
     "@babel/traverse": "^8.0.4",
     "@google/genai": "^2.21.0",
+    "@octokit/auth-app": "^8.3.1",
     "@octokit/rest": "^22.0.1",
     "@prisma/client": "5.22.0",
     "cors": "^2.8.6",
