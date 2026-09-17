@@ -238,7 +238,7 @@ gitsuture-ai/
 ## ⚙️ Prerequisites
 
 To run GitSuture locally, you need:
-* **Node.js:** v18 or higher
+* **Node.js:** v20.0.0 or higher
 * **npm:** Package manager
 * **Docker Desktop / Engine:** Must be running in the background for Agent 1.
 * **Gemini API Key:** From Google AI Studio.
@@ -409,9 +409,9 @@ GitSuture is built on the philosophy of **Verification over Blind Automation**. 
 
 ## 🚧 Known Constraints & Failure Modes
 
-* **Language Support:** Currently optimized for JavaScript/TypeScript + Jest.
+* **Language Support:** Strictly limited to JavaScript/TypeScript projects using Jest or Vitest.
 * **AST Extraction Limits:** Highly dynamic or complex JavaScript patterns (e.g., heavy metaprogramming) can reduce AST context extraction quality.
-* **Concurrency:** The current worker architecture runs on a single host. Production-scale concurrent webhook processing would benefit from stronger queue and job isolation (e.g., BullMQ + Kubernetes).
+* **Concurrency:** The current orchestrator is strictly designed for single-host execution and manages concurrency internally via in-memory locks. It is not designed for distributed execution across multiple instances.
 * **Dependencies:** Docker is strictly required for sandbox verification.
 * **Network Constraints:** A public HTTPS backend is required to receive GitHub webhooks.
 

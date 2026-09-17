@@ -37,7 +37,7 @@
 6. **Patch Generation:** Gemini outputs a strict Unified Diff patch.
 7. **Application:** System applies the `.patch` locally.
 8. **Verification (Agent 3):** Re-runs the sandbox tests.
-9. **GitHub Update:** Tests pass (Exit 0) -> Signed commit pushed to PR.
+9. **GitHub Update:** Tests pass (Exit 0) -> Commit pushed to PR.
 10. **Visual Trace:** Frontend updates via REST polling.
 
 ━━━━━━━━━━━━━━━━━━━━

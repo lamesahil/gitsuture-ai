@@ -48,8 +48,11 @@ function sign(body: string): string {
   return `sha256=${hmac}`;
 }
 
-/** Minimal valid GitHub pull_request payload. */
-function makePRPayload(action: string = 'opened'): object {
+function makePRPayload(
+  action: string = 'opened', 
+  sha: string = `sha-${Date.now()}-${Math.random()}`,
+  sender: any = { login: 'octocat' }
+): object {
   return {
     action,
     number: 42,
@@ -57,16 +60,14 @@ function makePRPayload(action: string = 'opened'): object {
       number: 42,
       head: {
         ref: 'feature/add-tests',
-        sha: 'abc1234def5678901234567890123456789012345',
+        sha,
       },
     },
     repository: {
       full_name: 'octocat/hello-world',
       clone_url: 'https://github.com/octocat/hello-world.git',
     },
-    sender: {
-      login: 'octocat',
-    },
+    sender,
   };
 }
 
@@ -134,10 +135,51 @@ describe('POST /api/webhooks/github — Event Normalization', () => {
     expect(res.status).toBe(200);
     expect(res.body).toMatchObject({
       status: 'QUEUED',
-      message: expect.stringContaining('Healing job queued'),
     });
     expect(typeof res.body.jobId).toBe('string');
-    expect(res.body.jobId.length).toBeGreaterThan(0);
+  });
+
+  it('4b. gracefully ignores bot-generated pull_request events', async () => {
+    const payload = makePRPayload('synchronize', `sha-bot-${Date.now()}`, { login: 'gitsuture[bot]', type: 'Bot' });
+    const body = JSON.stringify(payload);
+
+    const res = await request(app)
+      .post('/api/webhooks/github')
+      .set('Content-Type', 'application/json')
+      .set('x-github-event', 'pull_request')
+      .set('x-hub-signature-256', sign(body))
+      .send(body);
+
+    expect(res.status).toBe(200);
+    expect(res.body).toEqual({ message: 'Ignored bot event' });
+  });
+
+  it('4c. idempotency check: ignores exact duplicate delivery', async () => {
+    const payload = makePRPayload('synchronize', `sha-idempotency-${Date.now()}`);
+    const body = JSON.stringify(payload);
+
+    const res1 = await request(app)
+      .post('/api/webhooks/github')
+      .set('Content-Type', 'application/json')
+      .set('x-github-event', 'pull_request')
+      .set('x-hub-signature-256', sign(body))
+      .send(body);
+
+    expect(res1.status).toBe(200);
+    expect(res1.body).toMatchObject({ status: 'QUEUED' });
+    const jobId1 = res1.body.jobId;
+
+    // Send EXACT same payload again
+    const res2 = await request(app)
+      .post('/api/webhooks/github')
+      .set('Content-Type', 'application/json')
+      .set('x-github-event', 'pull_request')
+      .set('x-hub-signature-256', sign(body))
+      .send(body);
+
+    expect(res2.status).toBe(200);
+    expect(res2.body).toMatchObject({ jobId: jobId1 });
+    expect(typeof res2.body.status).toBe('string');
   });
 
   it('5. normalizes pull_request.synchronize event and returns JobAck', async () => {

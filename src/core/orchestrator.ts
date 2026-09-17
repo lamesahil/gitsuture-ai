@@ -31,9 +31,11 @@ import { prisma } from '../db/client.js';
 import { runTestsInSandbox } from '../agents/agent1_tester.js';
 import { diagnoseAndRepair } from '../agents/agent2_repair.js';
 import { applyAndVerifyPatch } from '../agents/agent3_verify.js';
-import { cloneRepository, pushSignedCommit, postDiagnosticComment } from '../git/octokit.js';
+import { cloneRepository, pushSignedCommit, postDiagnosticComment, getRemoteHeadSha } from '../git/octokit.js';
 import { extractEnclosingBlock } from '../ast/pruner.js';
 import type { NormalizedPREvent, JobAck } from './types.js';
+
+const writeBackLocks = new Set<string>();
 
 export function isPatchSafe(filePath: string): boolean {
   if (filePath.includes('tests/')) return false;
@@ -53,6 +55,24 @@ export function isPatchSafe(filePath: string): boolean {
 export async function handlePullRequestEvent(
   event: NormalizedPREvent
 ): Promise<JobAck> {
+  // Check for existing active job for the same PR and headSha
+  const activeJob = await prisma.healJob.findFirst({
+    where: {
+      pullRequest: { repoFullName: event.repoFullName, prNumber: event.prNumber },
+      headSha: event.headSha,
+      status: { notIn: ['RESOLVED', 'FAILED'] }
+    }
+  });
+
+  if (activeJob) {
+    console.log(`[ORCHESTRATOR] Healing job already exists for ${event.repoFullName}#${event.prNumber} at sha ${event.headSha.slice(0, 7)}`);
+    return {
+      jobId: activeJob.id,
+      status: activeJob.status as import('./types.js').JobStatus,
+      message: `Healing job already in progress. Job ID: ${activeJob.id}`,
+    };
+  }
+
   // Ensure PullRequest exists and create a HealJob record
   let pr = await prisma.pullRequest.findFirst({
     where: { repoFullName: event.repoFullName, prNumber: event.prNumber },
@@ -83,6 +103,7 @@ export async function handlePullRequestEvent(
   const job = await prisma.healJob.create({
     data: {
       pullRequestId: pr.id,
+      headSha: event.headSha,
       status: 'QUEUED',
     },
   });
@@ -223,7 +244,7 @@ export async function executeHealingLoop(jobId: string, event: NormalizedPREvent
     }
 
     console.log(`[ORCHESTRATOR] Initial tests failed. Entering healing loop. job=${jobId}`);
-    const combinedOutput = [initialTestResult.stdout, initialTestResult.stderr]
+    let combinedOutput = [initialTestResult.stdout, initialTestResult.stderr]
       .filter(Boolean)
       .join('\n');
     console.log(`[ORCHESTRATOR] Combined test output (first 500 chars):\n${combinedOutput.slice(0, 500)}`);
@@ -303,14 +324,36 @@ export async function executeHealingLoop(jobId: string, event: NormalizedPREvent
       if (verificationResult.status === 'VERIFIED') {
         console.log(`[ORCHESTRATOR] Patch verified. Committing changes...`);
         
-        await pushSignedCommit(workDir, `fix: AI auto-repair by GitSuture\n\nRoot cause: ${repairResult.rootCauseAnalysis}`, event.installationId);
-        
-        const comment = `### 🩺 GitSuture Auto-Repair\n\n**Root Cause:** ${repairResult.rootCauseAnalysis}\n**Confidence:** ${(repairResult.confidenceScore * 100).toFixed(0)}%\n\n\`\`\`diff\n${repairResult.unifiedDiff}\n\`\`\``;
-        await postDiagnosticComment(event.repoFullName, event.prNumber, comment, event.installationId);
+        // Stale head protection
+        const remoteSha = await getRemoteHeadSha(event.repoFullName, event.prNumber, event.installationId);
+        if (remoteSha && remoteSha !== event.headSha) {
+          throw new Error(`Stale job: PR head has advanced to ${remoteSha}, but job was for ${event.headSha}`);
+        }
 
-        console.log(`[ORCHESTRATOR] [STATE: VERIFYING -> HEALED] job=${jobId}`);
-        await prisma.healJob.update({ where: { id: jobId }, data: { status: 'RESOLVED' } });
-        return; // Success — E2E healing complete
+        // Concurrency lock for write-back
+        const lockKey = `${event.repoFullName}-${event.prNumber}`;
+        if (writeBackLocks.has(lockKey)) {
+          throw new Error(`Concurrency error: Another job is currently pushing to ${lockKey}`);
+        }
+        writeBackLocks.add(lockKey);
+
+        try {
+          await pushSignedCommit(workDir, `fix: AI auto-repair by GitSuture\n\nRoot cause: ${repairResult.rootCauseAnalysis}`, event.installationId);
+          
+          const comment = `### 🩺 GitSuture Auto-Repair\n\n**Root Cause:** ${repairResult.rootCauseAnalysis}\n**Confidence:** ${(repairResult.confidenceScore * 100).toFixed(0)}%\n\n\`\`\`diff\n${repairResult.unifiedDiff}\n\`\`\``;
+          await postDiagnosticComment(event.repoFullName, event.prNumber, comment, event.installationId);
+
+          console.log(`[ORCHESTRATOR] [STATE: VERIFYING -> HEALED] job=${jobId}`);
+          await prisma.healJob.update({ where: { id: jobId }, data: { status: 'RESOLVED' } });
+          return; // Success — E2E healing complete
+        } finally {
+          writeBackLocks.delete(lockKey);
+        }
+      }
+
+      if (verificationResult.errorOutput) {
+        console.log(`[ORCHESTRATOR] Updating combinedOutput with new failure for next iteration.`);
+        combinedOutput = verificationResult.errorOutput;
       }
 
       console.log(`[ORCHESTRATOR] Verification failed on attempt ${attempt}.`);

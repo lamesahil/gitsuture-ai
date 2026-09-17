@@ -179,15 +179,47 @@ export async function pushSignedCommit(
     await git.push('origin', 'HEAD');
     console.log(`[GIT] Push successful.`);
   } catch (err) {
-    // For local file:// repos the remote branch may be checked out, causing a push rejection.
-    // Log the error but don't abort — the patch is already verified and the commit exists locally.
     const msg = err instanceof Error ? err.message : String(err);
-    console.warn(`[GIT] Push to origin failed (may be expected for local demo repos): ${msg}`);
-    console.warn(`[GIT] Patch is committed locally in ${localPath}. Manual push required for production.`);
+    console.error(`[GIT] Push to origin failed: ${msg}`);
+    console.error(`[GIT] Patch is committed locally in ${localPath}.`);
+    throw new Error(`Git push failed: ${msg}`);
   }
 
-  // Suppress unused-parameter lint in case future callers omit installationId.
   void installationId;
+}
+
+/**
+ * Gets the current remote head SHA for a Pull Request.
+ * Used for stale-head verification before pushing.
+ *
+ * @param repoFullName   - "owner/repo"
+ * @param prNumber       - PR number
+ * @param installationId - Optional App installation ID; selects auth mode
+ */
+export async function getRemoteHeadSha(
+  repoFullName: string,
+  prNumber: number,
+  installationId?: number
+): Promise<string | null> {
+  if (repoFullName === 'local/demo-target') {
+    return null; // Mock implementation for local testing
+  }
+
+  const [owner, repo] = repoFullName.split('/');
+  const octokit = await getOctokit(installationId);
+
+  try {
+    const { data } = await octokit.rest.pulls.get({
+      owner,
+      repo,
+      pull_number: prNumber,
+    });
+    return data.head.sha;
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    console.error(`[GITHUB] Failed to get remote head SHA for PR #${prNumber}: ${msg}`);
+    return null;
+  }
 }
 
 /**

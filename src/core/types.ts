@@ -192,4 +192,7 @@ export interface VerificationResult {
 
   /** The successful diff applied, included only if VERIFIED. */
   diff?: string;
+
+  /** The stdout/stderr from the failed verification, included if FAILED. */
+  errorOutput?: string;
 }
