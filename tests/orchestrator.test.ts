@@ -120,4 +120,109 @@ describe('Orchestrator - executeHealingLoop', () => {
     // Status updated to FAILED because the loop throws an error caught by the outer block
     expect(prisma.healJob.update).toHaveBeenCalledWith({ where: { id: jobId }, data: { status: 'FAILED' } });
   });
+
+  it('should throw and fail if remote head has advanced (stale head protection)', async () => {
+    (agent1Tester.runTestsInSandbox as any).mockResolvedValue({ exitCode: 1, stderr: 'error' });
+    (agent2Repair.diagnoseAndRepair as any).mockResolvedValue({
+      rootCauseAnalysis: 'Root cause',
+      confidenceScore: 0.9,
+      filePath: 'src/test.js',
+      unifiedDiff: 'diff'
+    });
+    (agent3Verify.applyAndVerifyPatch as any).mockResolvedValue({ status: 'VERIFIED', diff: 'diff' });
+    
+    // Mock remote sha to be different
+    (octokitGit.getRemoteHeadSha as any).mockResolvedValue('advanced-sha-123');
+
+    await executeHealingLoop(jobId, event);
+
+    expect(octokitGit.pushSignedCommit).not.toHaveBeenCalled();
+    expect(prisma.healJob.update).toHaveBeenCalledWith({ where: { id: jobId }, data: { status: 'FAILED' } });
+  });
+
+  it('should prevent concurrent write-backs for the same PR (concurrency lock test)', async () => {
+    (agent1Tester.runTestsInSandbox as any).mockResolvedValue({ exitCode: 1, stderr: 'error' });
+    (agent2Repair.diagnoseAndRepair as any).mockResolvedValue({
+      rootCauseAnalysis: 'Root cause',
+      confidenceScore: 0.9,
+      filePath: 'src/test.js',
+      unifiedDiff: 'diff'
+    });
+    (agent3Verify.applyAndVerifyPatch as any).mockResolvedValue({ status: 'VERIFIED', diff: 'diff' });
+    (octokitGit.getRemoteHeadSha as any).mockResolvedValue(event.headSha);
+
+    // Make the first push block so we can trigger the concurrency lock with the second
+    let releaseLock: () => void;
+    const lockPromise = new Promise<void>((resolve) => {
+      releaseLock = resolve;
+    });
+
+    (octokitGit.pushSignedCommit as any).mockImplementationOnce(() => lockPromise);
+
+    // Start first execution
+    const exec1 = executeHealingLoop('job-1', event);
+
+    // Yield to event loop to allow first execution to reach the push (and acquire lock)
+    await new Promise(setImmediate);
+
+    // Start second execution for SAME event (same repo/pr)
+    await executeHealingLoop('job-2', event);
+
+    // The second execution should immediately fail and be marked FAILED
+    expect(prisma.healJob.update).toHaveBeenCalledWith({ where: { id: 'job-2' }, data: { status: 'FAILED' } });
+
+    // Release lock to finish exec1
+    releaseLock!();
+    await exec1;
+    
+    // The first execution should succeed
+    expect(prisma.healJob.update).toHaveBeenCalledWith({ where: { id: 'job-1' }, data: { status: 'RESOLVED' } });
+  });
+
+  it('should use NEW Agent 3 failure output on retry (iterative retry test)', async () => {
+    (agent1Tester.runTestsInSandbox as any).mockResolvedValue({ exitCode: 1, stderr: 'INITIAL_ERROR' });
+    
+    // Attempt 1 patches
+    (agent2Repair.diagnoseAndRepair as any).mockResolvedValueOnce({
+      rootCauseAnalysis: 'Root cause 1',
+      confidenceScore: 0.9,
+      filePath: 'src/test.js',
+      unifiedDiff: 'diff1'
+    });
+
+    // Attempt 1 fails verification with specific error
+    (agent3Verify.applyAndVerifyPatch as any).mockResolvedValueOnce({ 
+      status: 'FAILED',
+      errorOutput: 'FAILURE_A'
+    });
+
+    // Attempt 2 patches
+    (agent2Repair.diagnoseAndRepair as any).mockResolvedValueOnce({
+      rootCauseAnalysis: 'Root cause 2',
+      confidenceScore: 0.9,
+      filePath: 'src/test.js',
+      unifiedDiff: 'diff2'
+    });
+
+    // Attempt 2 succeeds
+    (agent3Verify.applyAndVerifyPatch as any).mockResolvedValueOnce({ 
+      status: 'VERIFIED',
+      diff: 'diff2'
+    });
+
+    await executeHealingLoop(jobId, event);
+
+    // Agent 2 should be called twice
+    expect(agent2Repair.diagnoseAndRepair).toHaveBeenCalledTimes(2);
+
+    // Second call should contain FAILURE_A
+    expect(agent2Repair.diagnoseAndRepair).toHaveBeenNthCalledWith(2,
+      'FAILURE_A',        // The updated combined test output (1st argument)
+      expect.any(String), // fileContext (2nd argument)
+      expect.anything()   // filePath (3rd argument)
+    );
+
+    // Should succeed ultimately
+    expect(prisma.healJob.update).toHaveBeenCalledWith({ where: { id: jobId }, data: { status: 'RESOLVED' } });
+  });
 });

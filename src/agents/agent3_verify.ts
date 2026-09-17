@@ -68,8 +68,19 @@ export async function applyAndVerifyPatch(
       };
     } else {
       console.error(`[AGENT3] Verification FAILED (Exit Code: ${sandboxResult.exitCode}). Rolling back...`);
-      // Fall through to finally block for rollback
-      throw new Error('Tests failed after patch application');
+      
+      const combinedOutput = [sandboxResult.stdout, sandboxResult.stderr]
+        .filter(Boolean)
+        .join('\n');
+
+      // We explicitly return FAILED with the new error context before rolling back.
+      // Wait, we need to rollback first, so we do it here instead of throwing.
+      fs.writeFileSync(fullFilePath, originalCode, 'utf8');
+      console.log(`[AGENT3] Rollback complete for ${repairResult.filePath}.`);
+      return {
+        status: 'FAILED',
+        errorOutput: combinedOutput
+      };
     }
 
   } catch (err) {

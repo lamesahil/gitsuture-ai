@@ -23,6 +23,7 @@ model HealJob {
   id              String      @id @default(uuid())
   pullRequestId   String
   pullRequest     PullRequest @relation(fields: [pullRequestId], references: [id])
+  headSha         String      @default("")
   status          String      // 'QUEUED' | 'CLONING' | 'TESTING' | 'DIAGNOSING' | 'VERIFYING' | 'RESOLVED' | 'FAILED'
   attempt         Int         @default(0)
   initialError    String?     // Storing Agent 1's stack trace
