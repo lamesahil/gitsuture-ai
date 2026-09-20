@@ -2,7 +2,7 @@
 
 > **Code breaks. GitSuture fixes it.**
 
-GitSuture is an autonomous, three-agent local healing environment. It detects failing tests in a Pull Request, diagnoses the root cause using highly focused Abstract Syntax Tree (AST) code extraction and Gemini 2.5 Flash, generates a structured Unified Git Diff, and rigorously verifies the patch inside an isolated Docker sandbox before pushing the fix.
+GitSuture is a three-stage autonomous healing pipeline, with Gemini powering diagnosis and repair. It detects failing tests in a Pull Request, diagnoses the root cause using highly focused Abstract Syntax Tree (AST) code extraction, generates a structured Unified Git Diff, and rigorously verifies the patch inside an isolated Docker sandbox before pushing the fix.
 
 ---
 
@@ -15,12 +15,6 @@ GitSuture replaces the manual cycle of pulling a broken branch, deciphering stac
 > **AI proposes the patch; deterministic execution and verification decide whether it is accepted.**
 
 Crucially, GitSuture **does not blindly trust AI.** Every generated patch must be applied to the local repository and proven to pass the test suite inside a secure Docker sandbox. If the patch fails, GitSuture rolls back the code and retries (up to a strict limit of 3 attempts).
-
-## 🎥 Demo Video
-
-Watch the GitSuture end-to-end demonstration:
-
-[Final YouTube URL pending]
 
 The demo showcases the real GitHub PR self-healing workflow, including:
 - GitHub PR / webhook trigger
@@ -46,10 +40,10 @@ GitSuture automates this exact workflow, executing it locally and autonomously.
 
 ### Agent 1 — Test Executor (The Sandbox)
 * Executes `npm test` safely on the cloned repository.
-* Runs strictly inside an isolated Docker container.
+* Runs inside an isolated Docker container, providing an additional layer of execution isolation.
 * Captures and multiplexes `stdout` and `stderr` streams.
 * Enforces strict resource limits (1 GiB RAM, 1 CPU Core) and a 120-second timeout.
-* Network access is entirely disabled during execution to prevent malicious code behavior.
+* Network access is disabled during execution to restrict test behavior.
 
 ### Agent 2 — Diagnosis & Repair (The Brain)
 * Parses the raw `stderr` stack trace to pinpoint the failing file and line number.
@@ -99,8 +93,8 @@ Installing the GitSuture GitHub App connects your repositories to the healing en
 2. GitHub asks which account or organization to install on.
 3. User chooses **All repositories** or **selected repositories**.
 4. GitSuture starts receiving `pull_request` webhooks.
-5. GitSuture uses GitHub App installation tokens for authenticating clones and commits.
-6. **No Personal Access Token (PAT) is required** for the GitHub App healing path.
+5. GitSuture uses GitHub App installation tokens for authenticating clones and commits as the primary authentication path.
+6. A Personal Access Token (PAT) is fully supported as a fallback for users not using the App.
 
 **Required Permissions:**
 GitSuture operates with the principle of least privilege.
@@ -186,11 +180,11 @@ GitSuture features a high-end 3D visual layer built with React Three Fiber and T
 
 ## 🛡️ Safety & Reliability
 
-GitSuture is designed with paranoia at its core:
-* **Docker Sandboxing:** Untrusted code runs in a highly restricted container (`NetworkDisabled: true`, max 1 GiB RAM).
+GitSuture is designed with reliability and safety at its core:
+* **Docker Isolation:** Untrusted code runs in a restricted container (`NetworkDisabled: true`, max 1 GiB RAM).
 * **AST Pruning:** By using Babel, we send minimal context to the LLM, reducing the surface area for AI hallucinations.
 * **Strict Verification:** No patch is pushed without passing `npm test` first.
-* **Guaranteed Rollback:** Failed patches trigger an immediate filesystem restoration.
+* **Automated Rollback:** Failed patches trigger an immediate filesystem restoration.
 * **HMAC Security:** Webhook payloads are verified using SHA-256 signatures via `crypto.timingSafeEqual`.
 * **Bounded Retries:** The system physically cannot loop more than 3 times on a single fix.
 
