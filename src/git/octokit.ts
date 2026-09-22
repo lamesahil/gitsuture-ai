@@ -218,7 +218,7 @@ export async function getRemoteHeadSha(
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
     console.error(`[GITHUB] Failed to get remote head SHA for PR #${prNumber}: ${msg}`);
-    return null;
+    throw new Error(`Failed to verify remote head for PR #${prNumber}: ${msg}`);
   }
 }
 

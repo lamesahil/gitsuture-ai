@@ -292,10 +292,24 @@ export async function executeHealingLoop(jobId: string, event: NormalizedPREvent
       );
 
       // Normalise the filePath returned by Gemini (strip leading slashes / workDir prefix)
-      const repairFilePath = repairResult.filePath
+      let repairFilePath = repairResult.filePath
         .replace(/^\/+/, '')         // strip leading slashes
         .replace(/^workspace\//, ''); // strip /workspace/ prefix that Gemini sometimes adds
-      repairResult.filePath = repairFilePath;
+      
+      const workDirAbs = path.resolve(workDir);
+      const resolvedPath = path.resolve(workDirAbs, repairFilePath);
+      const relativePath = path.relative(workDirAbs, resolvedPath);
+
+      if (relativePath.startsWith('..') || path.isAbsolute(relativePath)) {
+        console.error(`[ORCHESTRATOR] Unsafe patch rejected: Path traversal detected (${repairResult.filePath}).`);
+        console.log(`[ORCHESTRATOR] Verification failed on attempt ${attempt}.`);
+        if (attempt === MAX_RETRIES) {
+          throw new Error(`Maximum retries (${MAX_RETRIES}) reached. Escalating to human intervention.`);
+        }
+        continue;
+      }
+
+      repairResult.filePath = relativePath.replace(/\\/g, '/');
       
       console.log(`[ORCHESTRATOR] Agent 2 suggests patching: ${repairResult.filePath} (confidence=${repairResult.confidenceScore})`);
       console.log(`[ORCHESTRATOR] Root cause: ${repairResult.rootCauseAnalysis}`);

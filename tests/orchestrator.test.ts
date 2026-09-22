@@ -140,6 +140,67 @@ describe('Orchestrator - executeHealingLoop', () => {
     expect(prisma.healJob.update).toHaveBeenCalledWith({ where: { id: jobId }, data: { status: 'FAILED' } });
   });
 
+  it('should throw and fail if remote head cannot be verified (fail-closed API error)', async () => {
+    (agent1Tester.runTestsInSandbox as any).mockResolvedValue({ exitCode: 1, stderr: 'error' });
+    (agent2Repair.diagnoseAndRepair as any).mockResolvedValue({
+      rootCauseAnalysis: 'Root cause',
+      confidenceScore: 0.9,
+      filePath: 'src/test.js',
+      unifiedDiff: 'diff'
+    });
+    (agent3Verify.applyAndVerifyPatch as any).mockResolvedValue({ status: 'VERIFIED', diff: 'diff' });
+    
+    // Mock getRemoteHeadSha to throw an error (simulating API failure)
+    (octokitGit.getRemoteHeadSha as any).mockRejectedValue(new Error('Failed to verify remote head'));
+
+    await executeHealingLoop(jobId, event);
+
+    expect(octokitGit.pushSignedCommit).not.toHaveBeenCalled();
+    expect(prisma.healJob.update).toHaveBeenCalledWith({ where: { id: jobId }, data: { status: 'FAILED' } });
+  });
+
+  it('should reject unsafe AI file paths (path traversal and absolute paths)', async () => {
+    (agent1Tester.runTestsInSandbox as any).mockResolvedValue({ exitCode: 1, stderr: 'error' });
+    
+    // Attempt 1: Path Traversal
+    (agent2Repair.diagnoseAndRepair as any).mockResolvedValueOnce({
+      rootCauseAnalysis: 'Traversal',
+      confidenceScore: 0.9,
+      filePath: '../../etc/passwd',
+      unifiedDiff: 'diff'
+    });
+
+    // Attempt 2: Absolute Path (Windows/DOS style to ensure it survives slash stripping and is caught)
+    (agent2Repair.diagnoseAndRepair as any).mockResolvedValueOnce({
+      rootCauseAnalysis: 'Absolute',
+      confidenceScore: 0.9,
+      filePath: 'C:/etc/passwd',
+      unifiedDiff: 'diff'
+    });
+
+    // Attempt 3: Valid Path
+    (agent2Repair.diagnoseAndRepair as any).mockResolvedValueOnce({
+      rootCauseAnalysis: 'Valid',
+      confidenceScore: 0.9,
+      filePath: 'src/nested/valid.ts',
+      unifiedDiff: 'diff'
+    });
+
+    (agent3Verify.applyAndVerifyPatch as any).mockResolvedValue({ status: 'VERIFIED', diff: 'diff' });
+    (octokitGit.getRemoteHeadSha as any).mockResolvedValue(event.headSha);
+
+    await executeHealingLoop(jobId, event);
+
+    // Agent 3 should only be called once, for the valid path
+    expect(agent3Verify.applyAndVerifyPatch).toHaveBeenCalledTimes(1);
+    expect(agent3Verify.applyAndVerifyPatch).toHaveBeenCalledWith(
+      expect.any(String),
+      expect.objectContaining({ filePath: 'src/nested/valid.ts' })
+    );
+
+    expect(prisma.healJob.update).toHaveBeenCalledWith({ where: { id: jobId }, data: { status: 'RESOLVED' } });
+  });
+
   it('should prevent concurrent write-backs for the same PR (concurrency lock test)', async () => {
     (agent1Tester.runTestsInSandbox as any).mockResolvedValue({ exitCode: 1, stderr: 'error' });
     (agent2Repair.diagnoseAndRepair as any).mockResolvedValue({
