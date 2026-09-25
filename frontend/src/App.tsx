@@ -15,15 +15,6 @@ export default function App() {
   const timelineRef = useRef<HealingTimelineRef | null>(null)
   const [currentView, setCurrentView] = useState<'landing' | 'dashboard'>('landing')
 
-  function scrollToDemo() {
-    const el = document.getElementById('interactive-demo')
-    if (el) {
-      el.scrollIntoView({ behavior: 'smooth', block: 'center' })
-      // Start the auto-cycle when user scrolls to demo
-      timelineRef.current?.startAutoCycle()
-    }
-  }
-
   return (
     <div style={{ background: 'transparent', minHeight: '100svh' }} className="relative">
       <Scene />
