@@ -142,7 +142,7 @@ export default function Hero() {
             </a>
             <a
               id="hero-scroll-btn"
-              href="https://youtu.be/y4r4y4IqN5A"
+              href="https://youtu.be/GUT2RXzsYPQ"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 px-5 py-3 rounded font-medium transition-colors shadow-sm"

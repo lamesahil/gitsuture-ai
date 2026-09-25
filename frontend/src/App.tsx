@@ -39,7 +39,7 @@ export default function App() {
             <Differentiators />
             <DiffSection />
             <SecuritySection />
-            <CTASection onScrollToDemo={scrollToDemo} />
+            <CTASection />
           </>
         ) : (
           <Dashboard />

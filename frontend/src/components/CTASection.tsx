@@ -3,11 +3,7 @@ import { GitHubIcon, CopyIcon, CheckIcon } from './icons'
 
 const CLI_COMMAND = 'gh extension install gitsuture/gh-suture'
 
-interface CTAProps {
-  onScrollToDemo: () => void
-}
-
-export default function CTASection({ onScrollToDemo }: CTAProps) {
+export default function CTASection() {
   const [cliCopied, setCliCopied] = useState(false)
 
   function handleCliCopy() {
@@ -124,9 +120,11 @@ export default function CTASection({ onScrollToDemo }: CTAProps) {
               <GitHubIcon className="w-4 h-4" />
               <span>View GitHub Repository</span>
             </a>
-            <button
+            <a
               id="cta-scroll-demo"
-              onClick={onScrollToDemo}
+              href="https://youtu.be/GUT2RXzsYPQ"
+              target="_blank"
+              rel="noopener noreferrer"
               className="inline-flex items-center gap-2 px-5 py-3 rounded font-medium transition-colors shadow-sm"
               style={{
                 background: '#192029',
@@ -142,7 +140,7 @@ export default function CTASection({ onScrollToDemo }: CTAProps) {
             >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true"><rect x="2" y="3" width="20" height="14" rx="2" ry="2" /><line x1="8" y1="21" x2="16" y2="21" /><line x1="12" y1="17" x2="12" y2="21" /></svg>
               <span>View Live Demo</span>
-            </button>
+            </a>
           </div>
 
           {/* CLI snippet */}

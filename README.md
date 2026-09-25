@@ -10,7 +10,7 @@ GitSuture is a three-stage autonomous healing pipeline, with Gemini powering dia
 
 GitSuture replaces the manual cycle of pulling a broken branch, deciphering stack traces, and guessing fixes. It executes a strict, automated healing loop:
 
-**Webhook Trigger** → **Job Queued** → **Agent 1 (Test Executor)** → **Agent 2 (Diagnosis & Repair)** → **Agent 3 (Patch & Verification)** → **Verified Result**
+**Webhook Trigger** → **Job Queued** → **Stage 1 (Test Executor)** → **Stage 2 (Diagnosis & Repair)** → **Stage 3 (Patch & Verification)** → **Verified Result**
 
 > **AI proposes the patch; deterministic execution and verification decide whether it is accepted.**
 
@@ -36,16 +36,16 @@ Debugging failing Pull Requests is a highly repetitive, high-friction process. W
 
 GitSuture automates this exact workflow, executing it locally and autonomously.
 
-## 🧠 The Solution (3-Agent Architecture)
+## 🧠 The Solution (Three-Stage Healing Pipeline)
 
-### Agent 1 — Test Executor (The Sandbox)
+### Stage 1 — Test Executor (The Sandbox)
 * Executes `npm test` safely on the cloned repository.
 * Runs inside an isolated Docker container, providing an additional layer of execution isolation.
 * Captures and multiplexes `stdout` and `stderr` streams.
 * Enforces strict resource limits (1 GiB RAM, 1 CPU Core) and a 120-second timeout.
 * Network access is disabled during execution to restrict test behavior.
 
-### Agent 2 — Diagnosis & Repair (The Brain)
+### Stage 2 — Diagnosis & Repair (Gemini-Powered)
 * Parses the raw `stderr` stack trace to pinpoint the failing file and line number.
 * **AST Pruning:** Uses Babel (`@babel/parser`, `@babel/traverse`) to extract *only* the specific enclosing function/class. It does not feed entire files to the LLM, massively reducing token usage and hallucination risk.
 * Sends the focused context to Google's Gemini 2.5 Flash model.
@@ -55,9 +55,9 @@ GitSuture automates this exact workflow, executing it locally and autonomously.
   * `filePath`
   * `unifiedDiff`
 
-### Agent 3 — Verification (The Hands)
+### Stage 3 — Verification (The Hands)
 * Applies the generated Unified Git Diff to the local file system using the `diff` library.
-* Triggers Agent 1 to re-run the test suite on the patched code.
+* Triggers Stage 1 to re-run the test suite on the patched code.
 * If the test passes (Exit Code 0), returns a `VERIFIED` status.
 * If the test fails, it executes a strict rollback to restore the repository to its original state.
 
@@ -418,7 +418,13 @@ GitSuture is built on the philosophy of **Verification over Blind Automation**. 
 
 ## 🏆 Why GitSuture?
 
-GitSuture is not an AI chatbot that suggests code snippets for you to copy and paste. It is an end-to-end autonomous engineer. It creates a bounded Execution → Diagnosis → Patch → Verification loop, solving one of the most frustrating aspects of modern CI/CD pipelines natively and securely.
+GitSuture is not an AI chatbot that suggests code snippets for you to copy and paste. It is an end-to-end autonomous engineer. It creates a bounded Execution → Diagnosis → Patch → Verification loop — a three-stage autonomous healing pipeline, with Gemini powering diagnosis and repair — solving one of the most frustrating aspects of modern CI/CD pipelines natively and securely.
+
+## 🎥 Demo Video
+
+[![Watch the Final Demo](https://img.shields.io/badge/YouTube-Watch%20the%20Final%20Demo-red?style=for-the-badge&logo=youtube)](https://youtu.be/GUT2RXzsYPQ)
+
+🎥 [Watch the Final Demo](https://youtu.be/GUT2RXzsYPQ)
 
 ## 👤 Author
 
@@ -433,27 +439,13 @@ MIT License
 
 ## 🎥 Technical Walkthrough & Demo Evidence
 
-> **Recording Checklist** — Follow this section line-by-line while recording your demo video.
-> Every piece of evidence below is grounded in the actual repository, real test output, and existing screenshots.
-> Nothing here is fabricated.
+The following sections document the evidence behind each stage of the demo video.
 
 ---
 
 ### 1. Problem & Solution
 
-**WHAT TO SHOW**
-Open the GitSuture landing page in a browser. Show the hero headline, the animated 3D network, and the five-step pipeline strip at the top. Then briefly explain the problem.
-
-**WHERE TO FIND IT**
-- Running frontend: `http://localhost:5173` (or your deployed URL)
-- Screenshot: `docs/screenshots/landing_page.png`
-
-**WHAT TO SAY**
-> "Every developer knows this moment. A PR lands, the CI pipeline turns red, and you're context-switching to pull the branch, read a stack trace, guess a fix, and re-run tests. It's repetitive, slow, and blocks the entire team.
->
-> GitSuture automates that exact cycle. Code breaks — GitSuture fixes it. Not by suggesting code snippets you copy-paste, but by actually running your tests, diagnosing the failure with focused AI analysis, applying a patch, verifying it inside a sandboxed environment, and writing the fix back to your PR automatically."
-
-**SCREENSHOT / EVIDENCE**
+**Evidence**
 
 ![GitSuture landing page showing the hero headline "Code breaks. GitSuture fixes it." with the 3D abstract healing network and 5-step pipeline breadcrumb](docs/screenshots/landing_page.png)
 
@@ -463,27 +455,17 @@ The hero section shows the live 3D geometric network (React Three Fiber) alongsi
 
 ### 2. Three-Stage Healing Pipeline
 
-**WHAT TO SHOW**
-Show the architecture diagram from the README (or reproduce it on screen). Walk through the pipeline left to right, clearly identifying which stages are deterministic (execution, verification) and which uses Gemini (diagnosis and repair).
+GitSuture is built as a three-stage autonomous healing pipeline, with Gemini powering diagnosis and repair.
 
-**WHERE TO FIND IT**
-- Architecture diagram in this README (the ASCII block starting with `┌────────...`)
-- Source files that map to each stage:
-  - Stage 1 (deterministic): `src/agents/agent1_tester.ts`
-  - Stage 2 (Gemini-powered): `src/agents/agent2_repair.ts`
-  - Stage 3 (deterministic): `src/agents/agent3_verify.ts`
-  - Orchestrator: `src/core/orchestrator.ts`
+**Stage 1** is entirely deterministic: it clones your PR branch, mounts the code into a Docker container, and runs your test suite. No AI involved — just pure execution.
 
-**WHAT TO SAY**
-> "GitSuture is built as a three-stage autonomous healing pipeline, with Gemini powering diagnosis and repair.
->
-> **Stage 1** is entirely deterministic: it clones your PR branch, mounts the code into a Docker container, and runs your test suite. No AI involved — just pure execution.
->
-> **Stage 2** is where Gemini enters. The failing output from Stage 1 is passed through an AST pruner to extract only the narrowest relevant code block. That focused context, plus the stack trace, is sent to Gemini 2.5 Flash with a strict JSON response schema — guaranteeing a structured root cause, confidence score, target file, and a unified diff.
->
-> **Stage 3** is deterministic again: it applies that diff to the file system and re-runs the Docker sandbox. The patch is only accepted if the test suite passes. If it fails, the file is rolled back. AI proposes; deterministic execution decides."
+**Stage 2** is where Gemini enters. The failing output from Stage 1 is passed through an AST pruner to extract only the narrowest relevant code block. That focused context, plus the stack trace, is sent to Gemini 2.5 Flash with a strict JSON response schema — guaranteeing a structured root cause, confidence score, target file, and a unified diff.
 
-**SCREENSHOT / EVIDENCE**
+**Stage 3** is deterministic again: it applies that diff to the file system and re-runs the Docker sandbox. The patch is only accepted if the test suite passes. If it fails, the file is rolled back. AI proposes; deterministic execution decides.
+
+Source files: `src/agents/agent1_tester.ts` · `src/agents/agent2_repair.ts` · `src/agents/agent3_verify.ts` · `src/core/orchestrator.ts`
+
+**Evidence**
 
 ```text
 GitHub PR
@@ -506,28 +488,17 @@ State machine managed by `src/core/orchestrator.ts`:
 
 ### 3. AST-Pruned Cross-File Context
 
-**WHAT TO SHOW**
-Open the three files in the cross-file demo repository in your editor (or show their content on screen). Explain the import chain: test → service → helper. Then show `src/ast/pruner.ts` to demonstrate that GitSuture does not send the whole repository to Gemini — it walks the AST to extract only what is used.
+GitSuture does not send the entire repository to Gemini. The AST pruner (implemented with Babel's parser and traverse API in `src/ast/pruner.ts`) walks the import graph starting from the failing line. It extracts the narrowest enclosing function block, then recursively follows local import specifiers up to two levels deep.
 
-**WHERE TO FIND IT**
-- Demo repository: `https://github.com/lamesahil/gitsuture-demo-crossfile`
-  - `tests/cart.test.ts` — the failing test file
-  - `src/cartService.ts` — imports `discountHelper`
-  - `src/discountHelper.ts` — contains the bug
-- AST pruner: `src/ast/pruner.ts` — the `extractEnclosingBlock()` function
-- AST tests: `tests/ast.test.ts` — 13 passing tests including the cross-file traversal suite
+In the cross-file demo, `cart.test.ts` calls `calculateTotal` in `cartService.ts`, which calls `applyDiscount` in `discountHelper.ts`. The bug was:
+```typescript
+return total + percentage; // BUG: adds percentage as flat value
+```
+This reduces the context sent to Gemini from potentially thousands of lines to a few dozen — cutting hallucination risk and token cost.
 
-**WHAT TO SAY**
-> "Here is the actual code path GitSuture follows in the cross-file demo. `cart.test.ts` calls `calculateTotal` in `cartService.ts`, which in turn calls `applyDiscount` in `discountHelper.ts`.
->
-> `discountHelper.ts` contained this intentional bug:
-> ```typescript
-> return total + percentage; // BUG: adds percentage as flat value
-> ```
->
-> The key point: GitSuture does not send the entire repository to Gemini. The AST pruner, implemented with Babel's parser and traverse API, walks the import graph starting from the failing line. It extracts the narrowest enclosing function block, then recursively follows local import specifiers up to two levels deep. This reduces the context sent to Gemini from potentially thousands of lines to a few dozen — cutting hallucination risk and token cost."
+Demo repository: `https://github.com/lamesahil/gitsuture-demo-crossfile` · AST pruner: `src/ast/pruner.ts` · AST tests: `tests/ast.test.ts` (13 passing)
 
-**SCREENSHOT / EVIDENCE**
+**Evidence**
 
 The AST pruner cross-file logic (from `src/ast/pruner.ts`, function `extractEnclosingBlock`):
 ```typescript
@@ -557,25 +528,17 @@ Verified by 13 passing AST tests (`tests/ast.test.ts`), including cross-file tra
 
 ### 4. AI Diagnosis & Repair
 
-**WHAT TO SHOW**
-Show the diagnostic split-view screenshot. Call out the left pane (Agent 1 failure output) and the right pane (Agent 2 Gemini diff). Point to the confidence score, the root cause text, and the specific line change.
+Gemini is constrained by a `responseSchema` — it cannot return free text or hallucinate a different output structure. The schema enforces `rootCauseAnalysis`, `confidenceScore`, `filePath`, and `unifiedDiff`. If the schema is violated, the repair is rejected.
 
-**WHERE TO FIND IT**
-- Screenshot: `docs/screenshots/diagnostic_diff.png`
-- Agent 2 source: `src/agents/agent2_repair.ts`
-- Gemini is called with `responseMimeType: 'application/json'` and `responseSchema` enforcing 4 required fields
+From the live cross-file E2E run, Gemini identified the root cause and generated a valid unified diff targeting `src/discountHelper.ts`, with 100% confidence:
+```diff
+- return total + percentage;
++ return total - (total * percentage / 100);
+```
 
-**WHAT TO SAY**
-> "Here is the actual Agent 2 output from the live cross-file E2E run. On the left you see the raw Jest stack trace captured by Agent 1 from inside the Docker sandbox. On the right you see what Gemini returned.
->
-> Gemini identified the root cause and generated a valid unified diff targeting `src/discountHelper.ts`, with 100% confidence. The fix:
-> ```diff
-> - return total + percentage;
-> + return total - (total * percentage / 100);
-> ```
-> Critically, Gemini is constrained by a `responseSchema` — it cannot return free text or hallucinate a different output structure. The schema enforces `rootCauseAnalysis`, `confidenceScore`, `filePath`, and `unifiedDiff`. If the schema is violated, the repair is rejected."
+Source: `src/agents/agent2_repair.ts` (called with `responseMimeType: 'application/json'` and strict `responseSchema`)
 
-**SCREENSHOT / EVIDENCE**
+**Evidence**
 
 ![GitSuture diagnostic split-view showing the Jest failure output on the left and the Gemini-generated unified diff on the right fixing the cross-file discount bug, stamped Agent 3 · Verified](docs/screenshots/diagnostic_diff.png)
 
@@ -586,37 +549,20 @@ Right pane: **Agent 2 (Gemini)** generates the correct diff for `discountHelper.
 
 ### 5. Docker Verification
 
-**WHAT TO SHOW**
-Show the terminal output from a real E2E run. Focus on the Agent 1 initial failure, the Agent 3 patch application, and the final verification success line. Then show the Agent 1 container configuration from `src/agents/agent1_tester.ts` to demonstrate the security limits.
+Before any GitHub write-back, the generated patch is verified by re-running the test suite inside the same restricted Docker execution environment. Stage 3 takes the unified diff from Gemini, applies it to the local file, and calls Stage 1 again with a fresh container.
 
-**WHERE TO FIND IT**
-- Agent 3 source: `src/agents/agent3_verify.ts`
-- The verification success log is emitted at line 64 of `agent3_verify.ts`:
-  ```typescript
-  console.log(`[AGENT3] Verification SUCCESS. Patch is valid.`);
-  ```
-- Agent 1 resource limits in `src/agents/agent1_tester.ts`:
-  ```typescript
-  Memory: 1_073_741_824,   // 1 GiB
-  NanoCpus: 1_000_000_000, // 1 CPU core
-  NetworkDisabled: true,   // no network access
-  NetworkMode: 'none',     // belt-and-suspenders
-  Binds: [`${localRepoPath}:/workspace:ro`], // read-only mount
-  ```
-- Live integration tests with real Docker: `tests/agent1.test.ts` — both `dummy-pass` and `dummy-fail` fixtures pass when Docker is available:
-  ```
-  ✓ Agent 1 Tester - Integration Tests (Live) > should run dummy-pass and capture logs   7629ms
-  ✓ Agent 1 Tester - Integration Tests (Live) > should run dummy-fail and capture stack trace  6444ms
-  ```
+Agent 1 resource limits (`src/agents/agent1_tester.ts`):
+```typescript
+Memory: 1_073_741_824,   // 1 GiB
+NanoCpus: 1_000_000_000, // 1 CPU core
+NetworkDisabled: true,   // no network access
+NetworkMode: 'none',     // belt-and-suspenders
+Binds: [`${localRepoPath}:/workspace:ro`], // read-only mount
+```
 
-**WHAT TO SAY**
-> "Before any GitHub write-back, the generated patch is verified by re-running the test suite inside the same restricted Docker execution environment.
->
-> Agent 3 takes the unified diff from Gemini, applies it to the local file, and calls Agent 1 again. Agent 1 spins up a fresh container with network disabled, 1 GiB memory limit, and a read-only volume mount. If `npm test` exits with code 0, the patch is accepted. If it fails, the file is immediately rolled back to its original content.
->
-> Only after verification succeeds does GitSuture attempt to write back to GitHub."
+Live integration tests: `tests/agent1.test.ts` — both `dummy-pass` and `dummy-fail` fixtures pass when Docker is available.
 
-**SCREENSHOT / EVIDENCE**
+**Evidence**
 
 From the live E2E run (from `src/agents/agent3_verify.ts` and orchestrator logs):
 ```
@@ -637,26 +583,15 @@ From the live E2E run (from `src/agents/agent3_verify.ts` and orchestrator logs)
 
 ### 6. Safety & Write-Back Protection
 
-**WHAT TO SHOW**
-Two sub-sections: A) AI file-path validation, B) Stale-head protection. Show the actual code from `orchestrator.ts` and the unit test output that verifies both behaviors.
+GitSuture includes two important write-back protections.
 
-**WHERE TO FIND IT**
-- Orchestrator source: `src/core/orchestrator.ts` (lines ~295–324 for path validation, lines ~342–345 for stale-head)
-- Unit tests: `tests/orchestrator.test.ts`
-  - `"should reject unsafe AI file paths (path traversal and absolute paths)"` — PASSING
-  - `"should throw and fail if remote head has advanced (stale head protection)"` — PASSING
-- Safety tests: `tests/safety.test.ts` — `isPatchSafe()` guard — PASSING
+**A — AI file-path validation.** Gemini may return a file path that is a path traversal attack or absolute system path (e.g., `../../etc/passwd`). The orchestrator resolves the path relative to the work directory and checks whether it would escape the sandbox using Node.js `path.relative`. If the result starts with `..` or is itself absolute, the patch is silently rejected and the attempt is counted against the retry limit.
 
-**WHAT TO SAY**
-> "GitSuture includes two important write-back protections.
->
-> First, AI file-path validation. Gemini may return a file path that is a path traversal attack or absolute system path — for example `../../etc/passwd` or `C:/Windows/System32/file`. The orchestrator resolves the path relative to the work directory and checks whether it would escape the sandbox using Node.js `path.relative`. If the result starts with `..` or is itself absolute, the patch is silently rejected and the attempt is counted against the retry limit.
->
-> Second, stale-head protection. Before committing a verified patch, the orchestrator calls the GitHub API to confirm the PR's head SHA matches the SHA the job was started with. If the PR was updated while the healing job was running — meaning someone pushed a new commit — GitSuture refuses to write back the now-outdated patch and marks the job as FAILED.
->
-> These are not absolute security boundaries, but they meaningfully reduce the risk of incorrect or harmful write-backs during normal operation."
+**B — Stale-head protection.** Before committing a verified patch, the orchestrator calls the GitHub API to confirm the PR's head SHA matches the SHA the job was started with. If a new commit was pushed while healing was in progress, GitSuture refuses to write back the now-outdated patch and marks the job as FAILED.
 
-**SCREENSHOT / EVIDENCE**
+These are not absolute security boundaries, but they meaningfully reduce the risk of incorrect or harmful write-backs during normal operation.
+
+**Evidence**
 
 **A — AI file-path validation** (from `src/core/orchestrator.ts`):
 ```typescript
@@ -693,23 +628,13 @@ Verified by unit test `"should throw and fail if remote head has advanced"` — 
 
 ### 7. GitHub App Integration
 
-**WHAT TO SHOW**
-Show the GitHub App authentication flow — the scripts in `scripts/` and the auth module in `src/git/`. Explain the dual-path authentication model. **Do not show or paste any private keys, PATs, webhook secrets, installation tokens, or API keys.**
+GitSuture uses a dual-path GitHub authentication model. The primary path is GitHub App installation token authentication: when a webhook is delivered with an `installation.id` field, the orchestrator exchanges the App's RSA private key for a short-lived installation access token via `@octokit/auth-app`. That token is used for all git clone, push, and PR comment operations.
 
-**WHERE TO FIND IT**
-- Auth source: `src/git/githubAppAuth.ts` — `resolveAppPrivateKey()` and `isAppAuthConfigured()`
-- Auth integration: `src/git/octokit.ts` — `getOctokit(installationId?)` selects App or PAT path
-- Auth test script: `scripts/test-github-app-auth.ts`
-- Unit tests: `tests/githubAppAuth.test.ts` — 10 passing tests covering PEM resolution, fallback logic, and PAT selection contract
+When the installation ID is absent (direct PAT-based webhook setup), a Personal Access Token from `GITHUB_TOKEN` is used as the fallback. App permissions are scoped to the minimum required: Contents read/write, Pull Requests read/write, and Metadata read-only.
 
-**WHAT TO SAY**
-> "GitSuture uses a dual-path GitHub authentication model. The primary path is GitHub App installation token authentication. When a webhook is delivered with an `installation.id` field — which GitHub App deliveries include automatically — the orchestrator exchanges the App's RSA private key for a short-lived installation access token via `@octokit/auth-app`. That token is then used for all git clone, push, and PR comment operations.
->
-> When the installation ID is absent — for example, when using a direct PAT-based webhook setup — a Personal Access Token from `GITHUB_TOKEN` is used as the fallback.
->
-> The App permissions are scoped to the minimum required: Contents read/write for cloning and pushing, Pull Requests read/write for posting diagnostic comments, and Metadata read-only."
+Source: `src/git/githubAppAuth.ts` · `src/git/octokit.ts` · unit tests: `tests/githubAppAuth.test.ts` (10/10 passing)
 
-**SCREENSHOT / EVIDENCE**
+**Evidence**
 
 Auth selection logic in `src/git/octokit.ts` (conceptually):
 ```typescript
@@ -735,25 +660,17 @@ All 10 GitHub App auth unit tests: **PASSING** (`npm test` — 63/63 total).
 
 ---
 
-### 8. Developer Workflow / User Benefit
+### 8. Developer Workflow
 
-**WHAT TO SHOW**
-Show the dashboard screenshot with the HEALED state. Walk through the full timeline visible in the UI. Then briefly explain the practical developer experience.
+From a developer's perspective, the workflow is: open a PR → if tests fail, GitSuture picks up the webhook, clones the branch, runs tests inside Docker, and begins the healing process automatically.
 
-**WHERE TO FIND IT**
-- Screenshot: `docs/screenshots/dashboard_healed.png`
-- Frontend: `frontend/src/` (React + Tailwind, live polling of SQLite job state via Express API)
+The dashboard shows the exact state transition in real time: Intercepted → Cloning → Testing → Diagnosing → Verifying → Healed. Each step is backed by a real database state change in the SQLite HealJob record.
 
-**WHAT TO SAY**
-> "From a developer's perspective, the workflow is straightforward. You open a PR. If the tests fail, GitSuture picks up the webhook, clones the branch, runs your test suite inside Docker, and begins the healing process automatically.
->
-> You can watch the status in the dashboard — it shows the exact state transition in real time: Intercepted → Cloning → Testing → Diagnosing → Verifying → Healed. Each step is backed by a real database state change in the SQLite HealJob record.
->
-> When healing succeeds, two things happen on GitHub: a commit is pushed to your PR branch with the verified fix, and a diagnostic comment is posted to the PR showing the root cause, confidence score, and the unified diff that was applied.
->
-> Stale-head protection ensures GitSuture never writes back a patch for an outdated version of your branch — if you pushed a new commit while healing was in progress, the job aborts cleanly."
+When healing succeeds, two things happen on GitHub: a commit is pushed to the PR branch with the verified fix, and a diagnostic comment is posted to the PR showing the root cause, confidence score, and the unified diff that was applied.
 
-**SCREENSHOT / EVIDENCE**
+Frontend: `frontend/src/` (React + Tailwind, live polling of SQLite job state via Express API)
+
+**Evidence**
 
 ![GitSuture dashboard showing a single intercepted PR (lamesahil/gitsuture-demo-crossfile#1) with a green HEALED badge and the full timeline: Intercepted › Cloning › Testing › Diagnosing › Verifying › Healed](docs/screenshots/dashboard_healed.png)
 
@@ -763,72 +680,17 @@ A genuine, clean state captured from the live E2E run. The timeline confirms all
 
 ### 9. Future Scope
 
-**WHAT TO SHOW**
-Show this section or a simple closing slide with the three realistic future directions. Make clear these are **not currently implemented**.
+GitSuture currently supports JavaScript and TypeScript projects using Jest or Vitest. Three realistic directions for expansion (none currently implemented):
 
-**WHERE TO FIND IT**
-- Existing "Future Improvements" section in this README
-
-**WHAT TO SAY**
-> "GitSuture currently supports JavaScript and TypeScript projects using Jest or Vitest. There are three realistic directions for expansion.
->
-> First, broader language and framework support — dynamically provisioning Docker images for Python, Go, or Java projects based on the detected project type.
->
-> Second, deeper CI integration — writing repair summaries directly into GitHub's Checks API instead of only posting PR comments, which would surface the diagnosis inline in the GitHub UI.
->
-> Third, more complex repair strategies — handling multi-file refactors, dependency changes, or type-level errors that require context beyond a single function block.
->
-> None of these are implemented today. They represent the natural next phase of development."
-
-**SCREENSHOT / EVIDENCE**
-No screenshot needed. Show the Future Improvements section of this README or a simple text slide.
+1. **Broader language support** — dynamically provisioning Docker images for Python, Go, or Java projects.
+2. **Deeper CI integration** — writing repair summaries directly into GitHub's Checks API.
+3. **More complex repair strategies** — handling multi-file refactors, dependency changes, or type-level errors.
 
 ---
 
-### 10. Final
-
-**WHAT TO SHOW**
-Return to the landing page hero. Let the camera rest on the headline. Then close with a verbal thank you.
-
-**WHERE TO FIND IT**
-- Landing page: `http://localhost:5173` (or your deployed URL)
-- Screenshot: `docs/screenshots/landing_page.png`
-
-**WHAT TO SAY**
-> "Code breaks."
->
-> *(pause)*
->
-> "GitSuture fixes it."
->
-> *(pause)*
->
-> "Thank you."
-
-**SCREENSHOT / EVIDENCE**
-
-Show the hero section of the landing page — the 3D network with the headline centred on screen. No additional evidence needed.
-
 ---
 
-## 🎬 Final Demo Recording Order
 
-Use this as your exact recording script. Target minimum **4 minutes**.
-
-| Timecode | Section | What to show |
-|---|---|---|
-| **0:00 – 0:50** | **Problem + GitSuture intro** | Landing page hero; explain the PR-failure developer pain point; "Code breaks. GitSuture fixes it." |
-| **0:50 – 1:00** | **Transition** | Brief pause or screen transition to technical content |
-| **1:00 – 1:30** | **Three-Stage Pipeline** | Architecture diagram; identify Stage 1 (deterministic), Stage 2 (Gemini), Stage 3 (deterministic) |
-| **1:30 – 2:00** | **AST-Pruned Context** | `cart.test.ts → cartService.ts → discountHelper.ts`; show `src/ast/pruner.ts`; explain token reduction |
-| **2:00 – 2:45** | **Live demo** | Dashboard screenshot (HEALED run); diagnostic split-view screenshot; walk through Agent 1 failure → Gemini diff → Agent 3 verification |
-| **2:45 – 3:15** | **Docker Verification** | Show terminal output with `[AGENT3] Verification SUCCESS. Patch is valid.`; show container security limits from `agent1_tester.ts` |
-| **3:15 – 3:45** | **Safety + GitHub App** | Path traversal rejection code from `orchestrator.ts`; stale-head protection; GitHub App installation token flow |
-| **3:45 – 4:10** | **Developer Workflow** | Dashboard HEALED screenshot; explain the PR → heal → write-back flow from the developer's perspective |
-| **4:10 – 4:35** | **Future Scope** | Three realistic future directions (language support, Checks API, complex repairs) |
-| **4:35 – 4:50** | **Closing** | Return to landing page hero; "Code breaks. GitSuture fixes it." → "Thank you." |
-
----
 
 ## ✅ Final Verification Status
 
@@ -883,27 +745,12 @@ nothing to commit, working tree clean
 
 ---
 
-## 📸 Evidence Files to Capture for Recording
+## 📸 Screenshots
 
-The three screenshots already exist in `docs/screenshots/`:
+The three screenshots are in `docs/screenshots/`:
 
-| File | Used in section |
+| File | Section |
 |---|---|
-| `docs/screenshots/landing_page.png` | Sections 1, 10 |
-| `docs/screenshots/dashboard_healed.png` | Sections 8 |
-| `docs/screenshots/diagnostic_diff.png` | Section 4 |
-
-**Additional captures to make before recording (not yet available as static files):**
-
-| What to capture | Where to find it | Used in section |
-|---|---|---|
-| Terminal output with `[AGENT3] Verification SUCCESS. Patch is valid.` | Run `npm run test:app-webhook-e2e` against live repo, or show from a saved terminal session | Section 5 |
-| `src/agents/agent1_tester.ts` open in editor showing the HostConfig security limits | Open in VS Code | Section 5 |
-| `src/core/orchestrator.ts` lines 295–310 (path traversal rejection) | Open in VS Code | Section 6A |
-| `src/core/orchestrator.ts` lines 342–345 (stale-head check) | Open in VS Code | Section 6B |
-| `src/ast/pruner.ts` open in editor — the import traversal loop | Open in VS Code | Section 3 |
-| Demo repo files: `discountHelper.ts` with the bug, `cartService.ts`, `cart.test.ts` | `https://github.com/lamesahil/gitsuture-demo-crossfile` | Section 3 |
-| GitHub PR #1 with the diagnostic comment (root cause + diff) | `https://github.com/lamesahil/gitsuture-demo-crossfile/pull/1` | Section 7 |
-
-MIT License
-
+| `docs/screenshots/landing_page.png` | Problem & Solution, Final |
+| `docs/screenshots/dashboard_healed.png` | Developer Workflow |
+| `docs/screenshots/diagnostic_diff.png` | AI Diagnosis & Repair |
